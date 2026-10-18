@@ -16,6 +16,7 @@ import time
 import queue
 import random
 import tkinter as tk
+import tkinter.font as tkfont
 from pathlib import Path
 from tkinter import colorchooser, filedialog, messagebox, ttk
 
@@ -29,10 +30,11 @@ from .genome import (ALL_FIN_SHAPES, ALL_PATTERNS, ALL_TAIL_SHAPES, ARCHETYPES, 
 from .kinds import kind_from_label, kind_label
 from .palette import ACCENT, ACCENT2, BASE, FIN, FIN_DARK, build_palette
 from .species import RANDOM, kind_of, make_genome, morphs_of, species_for
+from . import theme
 
 ANY = "Any"
 PREVIEW_MAX_PX = 420  # live previews of big animals are drawn smaller; exports use the full size
-SHOWCASE = "Showcase (full cycle)"
+SHOWCASE = "Showcase"
 BACKGROUNDS = ("Water", "Dark", "Light", "Checker")
 FORMAT_LABELS = {
     "gif": "Animated GIFs",
@@ -105,7 +107,7 @@ GENE_TABS: list[tuple[str, list[tuple[str, tuple | None, list[tuple]]]]] = [
             ("Scale size", "scales", "float", (0.0, 0.06)),
             ("Scars", "scars", "float", (0.0, 1.0)),
             ("Knobs & barnacles", "knobs", "float", (0.0, 1.0)),
-            ("Eye colour", "iris_color", "color", FIN_DARK),
+            ("Eye color", "iris_color", "color", FIN_DARK),
         ]),
         ("Motion & camera", None, [
             ("Turn bend", "turn_lag", "float", (0.0, 1.2)),
@@ -178,7 +180,7 @@ GENE_TABS: list[tuple[str, list[tuple[str, tuple | None, list[tuple]]]]] = [
             ("Sway", "spines.sway", "float", (0.0, 0.4)),
         ]),
     ]),
-    ("Colours", [
+    ("Colors", [
         ("Body", None, [
             ("Hue", "colors.hue", "float", (0.0, 1.0)),
             ("Saturation", "colors.saturation", "float", (0.0, 1.0)),
@@ -186,19 +188,19 @@ GENE_TABS: list[tuple[str, list[tuple[str, tuple | None, list[tuple]]]]] = [
             ("Pale belly", "colors.belly_lightness", "float", (0.0, 1.0)),
         ]),
         ("Fins & spines", ("fish", "shark", "whale", "ray", "urchin"), [
-            ("Fin colour", "colors.fin_color", "color", FIN),
-            ("Tail colour", "colors.tail_color", "color", FIN),
-            ("Fin edge colour", "colors.fin_edge_color", "color", FIN_DARK),
+            ("Fin color", "colors.fin_color", "color", FIN),
+            ("Tail color", "colors.tail_color", "color", FIN),
+            ("Fin edge color", "colors.fin_edge_color", "color", FIN_DARK),
             ("Hue shift (auto)", "colors.fin_hue_shift", "float", (-0.5, 0.5)),
         ]),
         ("Pattern", None, [
             ("Pattern", "colors.pattern", "choice", ALL_PATTERNS),
-            ("Pattern colour", "colors.accent_color", "color", ACCENT),
-            ("Second colour", "colors.accent2_color", "color", ACCENT2),
+            ("Pattern color", "colors.accent_color", "color", ACCENT),
+            ("Second color", "colors.accent2_color", "color", ACCENT2),
             ("Rim round marks", "colors.accent_edge_color", "color", FIN_DARK),
             ("Spots on the belly", "colors.belly_pattern", "bool", None),
             ("Stripes on fins", "colors.pattern_on_fins", "bool", None),
-            ("Tail in body colour", "colors.tail_body_color", "bool", None),
+            ("Tail in body color", "colors.tail_body_color", "bool", None),
             ("Hue shift (auto)", "colors.accent_hue_shift", "float", (-0.5, 0.5)),
             ("Density", "colors.pattern_scale", "float", (0.0, 1.0)),
             ("Offset", "colors.pattern_offset", "float", (0.0, 1.0)),
@@ -239,9 +241,9 @@ class ScrollFrame(ttk.Frame):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.canvas = tk.Canvas(self, highlightthickness=0, borderwidth=0)
+        self.canvas = tk.Canvas(self, highlightthickness=0, borderwidth=0, background=theme.BG)
         bar = ttk.Scrollbar(self, orient="vertical", command=self.canvas.yview)
-        self.inner = ttk.Frame(self.canvas, padding=(10, 6, 14, 10))
+        self.inner = ttk.Frame(self.canvas, padding=(6, 2, 12, 8))
         self._win = self.canvas.create_window((0, 0), window=self.inner, anchor="nw")
         self.canvas.configure(yscrollcommand=bar.set)
         self.canvas.pack(side="left", fill="both", expand=True)
@@ -292,13 +294,105 @@ def _install_wheel(root: tk.Misc):
             root.unbind_class(cls, seq)
 
 
+class DropDown:
+    """The list a combobox opens, drawn inside the window rather than as a pop-up of its own.
+
+    Tk's own list is a separate window: it is slow to create the first time, and window managers
+    such as Hyprland animate it in, so every drop-down felt sluggish. One shared list serves them all.
+    """
+
+    ROWS = 12
+
+    def __init__(self, root: tk.Tk):
+        self.root = root
+        self.box: ttk.Combobox | None = None
+        self.values: tuple[str, ...] = ()
+        self.frame = tk.Frame(root, background=theme.BORDER)
+        self.list = tk.Listbox(self.frame, activestyle="none", borderwidth=0, highlightthickness=0, relief="flat",
+                               background=theme.FIELD, foreground=theme.TEXT, selectbackground=theme.ACCENT,
+                               selectforeground=theme.ON_ACCENT, font="TkDefaultFont", exportselection=False,
+                               selectborderwidth=2)
+        self.bar = ttk.Scrollbar(self.frame, orient="vertical", command=self.list.yview)
+        self.list.configure(yscrollcommand=self.bar.set)
+        self.list.pack(side="left", fill="both", expand=True, padx=1, pady=1)
+        self.list.bind("<Motion>", self._hover)
+        self.list.bind("<ButtonRelease-1>", lambda e: self._choose())
+        self.list.bind("<Return>", lambda e: self._choose())
+        self.list.bind("<Escape>", lambda e: self.close())
+        # Every binding that would post Tk's own list, quick double and triple clicks included.
+        for seq in ("<Button-1>", "<Shift-Button-1>", "<Double-Button-1>", "<Triple-Button-1>", "<KeyPress-Down>",
+                    "<KeyPress-space>"):
+            root.bind_class("TCombobox", seq, self._open)
+        root.bind_all("<Button-1>", self._click, add="+")
+        root.bind("<Configure>", lambda e: self.close() if e.widget is root else None, add="+")
+
+    def _open(self, event):
+        box = event.widget
+        was_open, _ = self.box is box, self.close()
+        values = self.root.tk.splitlist(box.cget("values"))
+        if was_open or box.instate(["disabled"]) or not values:
+            return "break"
+        box.focus_set()
+        self.list.delete(0, "end")
+        self.list.insert("end", *(f"  {v}" for v in values))  # a Listbox has no padding of its own
+        self.values = values
+        self.list.configure(height=min(len(values), self.ROWS))
+        if len(values) > self.ROWS:
+            self.bar.pack(side="right", fill="y", pady=1)
+        else:
+            self.bar.pack_forget()
+        if box.get() in values:
+            i = values.index(box.get())
+            self.list.selection_set(i)
+            self.list.activate(i)
+            self.list.see(i)
+        font = tkfont.nametofont("TkDefaultFont")
+        w = max(box.winfo_width(), max(font.measure(v) for v in values) + 32 + (self.bar.winfo_reqwidth()
+                                                                               if len(values) > self.ROWS else 0))
+        h = self.list.winfo_reqheight() + 2
+        rw, rh = self.root.winfo_width(), self.root.winfo_height()
+        x = box.winfo_rootx() - self.root.winfo_rootx()
+        top = box.winfo_rooty() - self.root.winfo_rooty()
+        y = top + box.winfo_height() + 2
+        if y + h > rh:  # no room below: open upward, or as low as fits
+            y = top - h - 2 if top - h - 2 >= 0 else max(0, rh - h)
+        self.frame.place(x=max(0, min(x, rw - w)), y=y, width=w, height=h)
+        self.frame.lift()
+        self.list.focus_set()
+        self.box = box
+        return "break"
+
+    def _hover(self, event):
+        i = self.list.nearest(event.y)
+        self.list.selection_clear(0, "end")
+        self.list.selection_set(i)
+        self.list.activate(i)
+
+    def _choose(self):
+        box, sel = self.box, self.list.curselection()
+        self.close()
+        if box is not None and sel:
+            box.set(self.values[sel[0]])
+            box.event_generate("<<ComboboxSelected>>")
+            box.focus_set()
+
+    def _click(self, event):
+        if self.box is not None and not str(event.widget).startswith(str(self.frame)):
+            self.close()
+
+    def close(self):
+        if self.box is not None:
+            self.frame.place_forget()
+            self.box = None
+
+
 class FishStudio:
     def __init__(self, root: tk.Tk, seed: int | None = None, species: str = RANDOM, out: Path = Path("out"),
                  kind: str = "fish"):
         self.root = root
         root.title("fishgen studio")
         root.geometry("1180x760")
-        root.minsize(900, 600)
+        root.minsize(640, 400)
 
         self.gene_vars: dict[str, tk.Variable] = {}
         self.swatches: dict[str, tuple[tk.Label, int]] = {}
@@ -375,9 +469,8 @@ class FishStudio:
 
     # ------------------------------------------------------------------ layout
     def _build(self):
-        style = ttk.Style()
-        style.configure("Section.TLabel", font=("Segoe UI", 10, "bold"))
-        style.configure("Big.TButton", padding=(14, 6))
+        theme.apply(self.root)
+        self.dropdown = DropDown(self.root)
 
         paned = ttk.PanedWindow(self.root, orient="horizontal")
         paned.pack(fill="both", expand=True)
@@ -388,7 +481,7 @@ class FishStudio:
 
         self._build_type(left)
         nb = self.notebook = ttk.Notebook(left)
-        nb.pack(fill="both", expand=True, padx=8, pady=(0, 8))
+        nb.pack(fill="both", expand=True, padx=8, pady=(2, 6))
         # (tab, [(section frame, kinds or None)]) so sections can follow the chosen kind.
         self.gene_tabs: list[tuple[ttk.Frame, list[tuple[ttk.Frame, tuple | None]]]] = []
         for title, sections in GENE_TABS:
@@ -405,53 +498,46 @@ class FishStudio:
         self._build_preview(right)
 
     def _build_type(self, parent):
-        box = ttk.LabelFrame(parent, text=" Animal ", padding=10)
-        box.pack(fill="x", padx=8, pady=8)
-        box.columnconfigure(1, weight=1)
+        box = ttk.LabelFrame(parent, text="Animal", padding=(10, 6, 10, 8))
+        box.pack(fill="x", padx=8, pady=(6, 4))
+        box.columnconfigure((1, 3), weight=1, uniform="field")
 
-        ttk.Label(box, text="Kind").grid(row=0, column=0, sticky="w", padx=(0, 8), pady=3)
-        ttk.Combobox(box, textvariable=self.kind, values=[kind_label(k) for k in KINDS], state="readonly",
-                     width=18).grid(row=0, column=1, columnspan=2, sticky="ew", pady=3)
+        def field(row, col, text, widget):
+            ttk.Label(box, text=text).grid(row=row, column=col, sticky="w", padx=(0 if col == 0 else 10, 6), pady=2)
+            widget.grid(row=row, column=col + 1, sticky="ew", pady=2)
+            return widget
 
-        ttk.Label(box, text="Species").grid(row=1, column=0, sticky="w", padx=(0, 8), pady=3)
-        self.species_box = ttk.Combobox(box, textvariable=self.species, values=species_for(self._kind()),
-                                        state="readonly", width=18)
-        self.species_box.grid(row=1, column=1, columnspan=2, sticky="ew", pady=3)
-
-        ttk.Label(box, text="Body type").grid(row=2, column=0, sticky="w", padx=(0, 8), pady=3)
-        self.arch_box = ttk.Combobox(box, textvariable=self.archetype, values=(ANY, *ARCHETYPES),
-                                     state="readonly", width=18)
-        self.arch_box.grid(row=2, column=1, columnspan=2, sticky="ew", pady=3)
-
-        ttk.Label(box, text="Variety").grid(row=3, column=0, sticky="w", padx=(0, 8), pady=3)
-        self.morph_box = ttk.Combobox(box, textvariable=self.morph, values=(ANY,), state="disabled", width=18)
-        self.morph_box.grid(row=3, column=1, columnspan=2, sticky="ew", pady=3)
-
-        ttk.Label(box, text="Seed").grid(row=4, column=0, sticky="w", padx=(0, 8), pady=3)
-        ttk.Spinbox(box, textvariable=self.seed, from_=0, to=999_999_999, width=12) \
-            .grid(row=4, column=1, sticky="ew", pady=3)
-        ttk.Button(box, text="Random seed", command=self.random_seed).grid(row=4, column=2, sticky="ew", padx=(6, 0))
+        field(0, 0, "Kind", ttk.Combobox(box, textvariable=self.kind, values=[kind_label(k) for k in KINDS],
+                                         state="readonly", width=10))
+        self.species_box = field(0, 2, "Species", ttk.Combobox(box, textvariable=self.species, state="readonly",
+                                                               values=species_for(self._kind()), width=10))
+        self.arch_box = field(1, 0, "Body", ttk.Combobox(box, textvariable=self.archetype, values=(ANY, *ARCHETYPES),
+                                                         state="readonly", width=10))
+        self.morph_box = field(1, 2, "Variety", ttk.Combobox(box, textvariable=self.morph, values=(ANY,),
+                                                             state="disabled", width=10))
+        seed = ttk.Frame(box)
+        field(2, 0, "Seed", seed)
+        ttk.Spinbox(seed, textvariable=self.seed, from_=0, to=999_999_999, width=7).pack(side="left", fill="x",
+                                                                                         expand=True)
+        ttk.Button(seed, text="Random", command=self.random_seed).pack(side="left", padx=(4, 0))
+        btns = ttk.Frame(box)
+        btns.grid(row=2, column=2, columnspan=2, sticky="e", padx=(10, 0), pady=2)
+        ttk.Button(btns, text="Surprise me", command=self.surprise).pack(side="left")
+        # Kind + species + seed = same animal; the gene tabs only add tweaks on top, so this drops them.
+        ttk.Button(btns, text="Undo tweaks", command=self.load_type).pack(side="left", padx=(4, 0))
 
         # Sprite size right here, since an N x N sprite of this animal is what most people are after.
-        ttk.Label(box, text="Size").grid(row=5, column=0, sticky="w", padx=(0, 8), pady=3)
         sizes = ttk.Frame(box)
-        sizes.grid(row=5, column=1, columnspan=2, sticky="w", pady=3)
-        self.size_label = ttk.Label(sizes, width=9)
+        field(3, 0, "Size", sizes).grid(columnspan=3, sticky="w")
+        self.size_label = ttk.Label(sizes, width=9, style="Hint.TLabel")
         for n in (16, 24, 32, 48, 64, 96, 128):
-            ttk.Button(sizes, text=str(n), width=4,
+            ttk.Button(sizes, text=str(n), width=3, style="Chip.TButton",
                        command=lambda n=n: (self.width.set(n), self.height.set(n), self.scale_by_size.set(False))) \
-                .pack(side="left", padx=(0, 2))
+                .pack(side="left", padx=(0, 3))
         self.size_label.pack(side="left", padx=(4, 0))
         for v in (self.width, self.height, self.scale_by_size):
             v.trace_add("write", lambda *_: self._show_size())
         self._show_size()
-
-        btns = ttk.Frame(box)
-        btns.grid(row=6, column=0, columnspan=3, sticky="ew", pady=(6, 0))
-        ttk.Button(btns, text="Surprise me", command=self.surprise).pack(side="left")
-        ttk.Button(btns, text="Undo my tweaks", command=self.load_type).pack(side="left", padx=6)
-        ttk.Label(box, text="Kind + species + seed = same animal. Tweaks below go on top.",
-                  foreground="#666").grid(row=7, column=0, columnspan=3, sticky="w", pady=(6, 0))
 
     def _show_size(self):
         try:
@@ -462,13 +548,13 @@ class FishStudio:
 
     def _section(self, parent, row: int, title: str) -> int:
         ttk.Label(parent, text=title, style="Section.TLabel").grid(
-            row=row, column=0, columnspan=3, sticky="w", pady=(12 if row else 2, 4))
+            row=row, column=0, columnspan=3, sticky="w", pady=(8 if row else 0, 2))
         return row + 1
 
     def _slider(self, parent, row: int, label: str, var: tk.Variable, lo: float, hi: float,
                 fmt: str = "{:.2f}", step: float | None = None):
         ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", padx=(8, 10), pady=2)
-        value = ttk.Label(parent, width=6, anchor="e")
+        value = ttk.Label(parent, width=6, anchor="e", style="Value.TLabel")
         value.grid(row=row, column=2, sticky="e")
 
         def moved(text):
@@ -496,7 +582,7 @@ class FishStudio:
         frames = []
         for i, (title, kinds, controls) in enumerate(sections):
             box = ttk.Frame(parent)
-            box.grid(row=i, column=0, sticky="ew", pady=(8, 0))
+            box.grid(row=i, column=0, sticky="ew", pady=(6, 0))
             box.columnconfigure(0, minsize=130)
             box.columnconfigure(1, weight=1)
             frames.append((box, kinds))
@@ -529,9 +615,9 @@ class FishStudio:
                 self.gene_vars[path] = var
                 row += 1
             if title == "Body":
-                ttk.Button(box, text="Pick body colour...", command=self.pick_body_color) \
+                ttk.Button(box, text="Pick body color...", command=self.pick_body_color) \
                     .grid(row=row, column=1, sticky="w", pady=(4, 0))
-                sw = tk.Label(box, width=4, relief="solid", borderwidth=1)
+                sw = tk.Label(box, width=4, borderwidth=0, highlightthickness=1, highlightbackground=theme.BORDER)
                 sw.grid(row=row, column=2, sticky="e", pady=(4, 0))
                 self.swatches["body"] = (sw, BASE)
                 row += 1
@@ -556,7 +642,8 @@ class FishStudio:
         ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", padx=(8, 10), pady=2)
         cell = ttk.Frame(parent)
         cell.grid(row=row, column=1, columnspan=2, sticky="ew", pady=2)
-        sw = tk.Label(cell, width=4, relief="solid", borderwidth=1, cursor="hand2")
+        sw = tk.Label(cell, width=4, borderwidth=0, highlightthickness=1, highlightbackground=theme.BORDER,
+                      cursor="hand2")
         sw.pack(side="left")
         mode = ttk.Label(cell, width=7)
         mode.pack(side="left", padx=6)
@@ -574,19 +661,19 @@ class FishStudio:
         self.swatches[path] = (sw, slot)
 
     def _int_row(self, parent, row, label, var, lo, hi, hint=""):
-        ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", padx=(8, 10), pady=3)
-        ttk.Spinbox(parent, textvariable=var, from_=lo, to=hi, width=8).grid(row=row, column=1, sticky="w", pady=3)
+        ttk.Label(parent, text=label).grid(row=row, column=0, sticky="w", padx=(8, 10), pady=2)
+        ttk.Spinbox(parent, textvariable=var, from_=lo, to=hi, width=8).grid(row=row, column=1, sticky="w", pady=2)
         if hint:
-            ttk.Label(parent, text=hint, foreground="#666").grid(row=row, column=2, sticky="w")
+            ttk.Label(parent, text=hint, style="Hint.TLabel").grid(row=row, column=2, sticky="w")
 
     def _build_sprite_tab(self, p):
         p.columnconfigure(2, weight=1)
         row = self._section(p, 0, "Style")
         ttk.Radiobutton(p, text="Pixel art", variable=self.pixel_art, value=True) \
             .grid(row=row, column=0, sticky="w", padx=8)
-        ttk.Radiobutton(p, text="Smooth (anti-aliased, full colour)", variable=self.pixel_art, value=False) \
+        ttk.Radiobutton(p, text="Smooth (anti-aliased, full color)", variable=self.pixel_art, value=False) \
             .grid(row=row, column=1, columnspan=2, sticky="w")
-        self._int_row(p, row + 1, "Colours", self.colors, 0, 256, "palette size, 0 = automatic")
+        self._int_row(p, row + 1, "Colors", self.colors, 0, 256, "palette size, 0 = automatic")
         ttk.Checkbutton(p, text="Dark outline", variable=self.outline) \
             .grid(row=row + 2, column=0, columnspan=3, sticky="w", padx=8, pady=(0, 4))
 
@@ -598,15 +685,15 @@ class FishStudio:
         sizes = ttk.Frame(p)
         sizes.grid(row=row + 3, column=0, columnspan=3, sticky="w", padx=8, pady=(2, 0))
         for n in (16, 24, 32, 48, 64, 96, 128, 256):
-            ttk.Button(sizes, text=str(n), width=4,
+            ttk.Button(sizes, text=str(n), width=3, style="Chip.TButton",
                        command=lambda n=n: (self.width.set(n), self.height.set(n), self.scale_by_size.set(False))) \
                 .pack(side="left", padx=(0, 3))
         ttk.Radiobutton(p, text="To scale: animals sized by their real length", variable=self.scale_by_size,
                         value=True).grid(row=row + 4, column=0, columnspan=3, sticky="w", padx=8, pady=(8, 0))
-        ttk.Label(p, text="Pixels per metre").grid(row=row + 5, column=0, sticky="w", padx=(8, 10), pady=3)
+        ttk.Label(p, text="Pixels per meter").grid(row=row + 5, column=0, sticky="w", padx=(8, 10), pady=2)
         ttk.Spinbox(p, textvariable=self.px_per_m, from_=1, to=2000, increment=2, width=8) \
-            .grid(row=row + 5, column=1, sticky="w", pady=3)
-        ttk.Label(p, text=f"{DEFAULT_PX_PER_M:g}: a great white is ~75px", foreground="#666") \
+            .grid(row=row + 5, column=1, sticky="w", pady=2)
+        ttk.Label(p, text=f"{DEFAULT_PX_PER_M:g}: a great white is ~75px", style="Hint.TLabel") \
             .grid(row=row + 5, column=2, sticky="w")
         self._int_row(p, row + 6, "Smallest (px)", self.min_px, 4, 2048, "small fish are drawn at least this long")
         self._int_row(p, row + 7, "Largest (px)", self.max_px, 8, 2048, "whales are shrunk to fit a sprite this big")
@@ -616,15 +703,15 @@ class FishStudio:
         self._int_row(p, row + 1, "Turn frames", self.turn_frames, 2, 64, "per turn-around")
         self._int_row(p, row + 2, "Frames / sec", self.fps, 1, 60)
         # One knob for "N times as smooth": multiplies all three above, so the speed stays the same.
-        ttk.Label(p, text="Smoothness").grid(row=row + 3, column=0, sticky="w", padx=(8, 10), pady=3)
+        ttk.Label(p, text="Smoothness").grid(row=row + 3, column=0, sticky="w", padx=(8, 10), pady=2)
         ttk.Spinbox(p, textvariable=self.smoothness, from_=0.25, to=8, increment=0.5, width=8) \
-            .grid(row=row + 3, column=1, sticky="w", pady=3)
+            .grid(row=row + 3, column=1, sticky="w", pady=2)
         quick = ttk.Frame(p)
         quick.grid(row=row + 4, column=0, columnspan=3, sticky="w", padx=8, pady=(2, 0))
         for n in (1, 2, 3, 4):
-            ttk.Button(quick, text=f"{n}x", width=4, command=lambda n=n: self.smoothness.set(n)) \
+            ttk.Button(quick, text=f"{n}x", width=3, style="Chip.TButton", command=lambda n=n: self.smoothness.set(n)) \
                 .pack(side="left", padx=(0, 3))
-        self.timing_label = ttk.Label(quick, foreground="#666")
+        self.timing_label = ttk.Label(quick, style="Hint.TLabel")
         self.timing_label.pack(side="left", padx=(6, 0))
         for v in (self.swim_frames, self.turn_frames, self.fps, self.smoothness):
             v.trace_add("write", lambda *_: self._show_timing())
@@ -632,7 +719,7 @@ class FishStudio:
         row = self._section(p, row + 5, "Camera")
         p.columnconfigure(1, weight=1)
         self._slider(p, row, "Tilt", self.pitch, 0.0, 0.8)
-        ttk.Label(p, text="Higher tilt shows more of the fish's back.", foreground="#666") \
+        ttk.Label(p, text="Higher tilt shows more of the fish's back.", style="Hint.TLabel") \
             .grid(row=row + 1, column=0, columnspan=3, sticky="w", padx=8)
 
     def _show_timing(self):
@@ -646,10 +733,10 @@ class FishStudio:
     def _build_export_tab(self, p):
         p.columnconfigure(1, weight=1)
         row = self._section(p, 0, "Where")
-        ttk.Label(p, text="File name").grid(row=row, column=0, sticky="w", padx=(8, 10), pady=3)
-        ttk.Entry(p, textvariable=self.name).grid(row=row, column=1, columnspan=2, sticky="ew", pady=3)
-        ttk.Label(p, text="Folder").grid(row=row + 1, column=0, sticky="w", padx=(8, 10), pady=3)
-        ttk.Entry(p, textvariable=self.out_dir).grid(row=row + 1, column=1, sticky="ew", pady=3)
+        ttk.Label(p, text="File name").grid(row=row, column=0, sticky="w", padx=(8, 10), pady=2)
+        ttk.Entry(p, textvariable=self.name).grid(row=row, column=1, columnspan=2, sticky="ew", pady=2)
+        ttk.Label(p, text="Folder").grid(row=row + 1, column=0, sticky="w", padx=(8, 10), pady=2)
+        ttk.Entry(p, textvariable=self.out_dir).grid(row=row + 1, column=1, sticky="ew", pady=2)
         ttk.Button(p, text="Browse...", command=self.browse_out).grid(row=row + 1, column=2, padx=(6, 0))
 
         row = self._section(p, row + 2, "What")
@@ -661,45 +748,45 @@ class FishStudio:
         row = self._section(p, row, "Options")
         self._int_row(p, row, "GIF zoom", self.gif_scale, 1, 32, "x")
         ttk.Checkbutton(p, text="Solid GIF background", variable=self.gif_bg_on) \
-            .grid(row=row + 1, column=0, columnspan=2, sticky="w", padx=8, pady=3)
+            .grid(row=row + 1, column=0, columnspan=2, sticky="w", padx=8, pady=2)
         bg_cell = ttk.Frame(p)
         bg_cell.grid(row=row + 1, column=2, sticky="w")
-        self.bg_swatch = tk.Label(bg_cell, width=4, relief="solid", borderwidth=1, bg=self.gif_bg.get(), cursor="hand2")
+        self.bg_swatch = tk.Label(bg_cell, width=4, borderwidth=0, highlightthickness=1,
+                                  highlightbackground=theme.BORDER, bg=self.gif_bg.get(), cursor="hand2")
         self.bg_swatch.pack(side="left")
         self.bg_swatch.bind("<Button-1>", lambda e: self.pick_gif_bg())
         self._int_row(p, row + 2, "PNG frame zoom", self.frame_scale, 1, 32, "x")
         self._int_row(p, row + 3, "Sheet padding", self.padding, 0, 16, "px")
-        ttk.Label(p, text="Godot folder").grid(row=row + 4, column=0, sticky="w", padx=(8, 10), pady=3)
-        ttk.Entry(p, textvariable=self.godot_dir).grid(row=row + 4, column=1, columnspan=2, sticky="ew", pady=3)
+        ttk.Label(p, text="Godot folder").grid(row=row + 4, column=0, sticky="w", padx=(8, 10), pady=2)
+        ttk.Entry(p, textvariable=self.godot_dir).grid(row=row + 4, column=1, columnspan=2, sticky="ew", pady=2)
 
         btns = ttk.Frame(p)
         btns.grid(row=row + 5, column=0, columnspan=3, sticky="w", pady=(14, 0), padx=8)
-        ttk.Button(btns, text="Export fish", style="Big.TButton", command=self.export).pack(side="left")
+        ttk.Button(btns, text="Export fish", style="Accent.TButton", command=self.export).pack(side="left")
         ttk.Button(btns, text="Open folder", command=self.open_out).pack(side="left", padx=8)
 
     def _build_preview(self, parent):
-        bar = ttk.Frame(parent, padding=(8, 8, 8, 4))
+        bar = ttk.Frame(parent, padding=(2, 6, 8, 4))
         bar.pack(fill="x")
-        ttk.Label(bar, text="Animation").pack(side="left")
         self.anim_box = ttk.Combobox(bar, textvariable=self.anim, values=(SHOWCASE, *SHOWCASE_ORDER[:1]),
-                                     state="readonly", width=20)
-        self.anim_box.pack(side="left", padx=(4, 12))
-        ttk.Label(bar, text="Zoom").pack(side="left")
+                                     state="readonly", width=13)
+        self.anim_box.pack(side="left", padx=(4, 10))
+        ttk.Label(bar, text="Zoom", style="Hint.TLabel").pack(side="left")
         ttk.Combobox(bar, textvariable=self.zoom, values=("Fit", *[f"{z}x" for z in (1, 2, 3, 4, 6, 8, 12, 16)]),
-                     state="readonly", width=5).pack(side="left", padx=(4, 12))
-        ttk.Label(bar, text="Background").pack(side="left")
+                     state="readonly", width=5).pack(side="left", padx=(4, 10))
+        ttk.Label(bar, text="Background", style="Hint.TLabel").pack(side="left")
         ttk.Combobox(bar, textvariable=self.background, values=BACKGROUNDS, state="readonly",
-                     width=8).pack(side="left", padx=(4, 12))
-        ttk.Checkbutton(bar, text="Play", variable=self.playing).pack(side="left")
+                     width=8).pack(side="left", padx=(4, 10))
 
         self.view = tk.Canvas(parent, highlightthickness=0, background="#1a3a5c")
-        self.view.pack(fill="both", expand=True, padx=8)
+        self.view.pack(fill="both", expand=True, padx=(2, 8))
         self.view.bind("<Configure>", lambda e: self.rebuild_frames())
 
-        foot = ttk.Frame(parent, padding=(8, 4, 8, 8))
+        foot = ttk.Frame(parent, padding=(2, 4, 8, 6))
         foot.pack(fill="x")
-        ttk.Label(foot, textvariable=self.status).pack(side="left")
-        ttk.Button(foot, text="Export fish", style="Big.TButton", command=self.export).pack(side="right")
+        ttk.Checkbutton(foot, text="Play", variable=self.playing).pack(side="left", padx=(0, 12))
+        ttk.Label(foot, textvariable=self.status, style="Status.TLabel").pack(side="left")
+        ttk.Button(foot, text="Export fish", style="Accent.TButton", command=self.export).pack(side="right")
 
     # ------------------------------------------------------------------ genome <-> controls
     def load_type(self):
@@ -726,6 +813,8 @@ class FishStudio:
         try:
             for path, var in self.gene_vars.items():
                 value = _get(self.base_genome, path)
+                if path == "length_cm":
+                    value = round(value, 1)
                 var.set("" if value is None else value)
         finally:
             self._loading = False
@@ -768,7 +857,7 @@ class FishStudio:
             sw.configure(bg=_hex(pal[slot]))
 
     def pick_body_color(self):
-        rgb, hx = colorchooser.askcolor(color=self._palette_hex(BASE), parent=self.root, title="Body colour")
+        rgb, hx = colorchooser.askcolor(color=self._palette_hex(BASE), parent=self.root, title="Body color")
         if not rgb:
             return
         h, s, v = colorsys.rgb_to_hsv(*(c / 255 for c in rgb))
@@ -837,13 +926,13 @@ class FishStudio:
         except (tk.TclError, ValueError):
             raise ValueError("Sprite settings must be numbers")
         if opts["colors"] is not None and not 2 <= opts["colors"] <= 256:
-            raise ValueError("Colours must be 0 (automatic) or 2 to 256")
+            raise ValueError("Colors must be 0 (automatic) or 2 to 256")
         if opts["max_px"] < opts["min_px"]:
             raise ValueError("The largest size must be at least the smallest")
         if not (8 <= opts["width"] <= 2048 and 8 <= opts["height"] <= 2048):
             raise ValueError("Size must be between 8 and 2048 pixels")
         if opts["px_per_m"] <= 0 or opts["min_px"] < 1:
-            raise ValueError("Pixels per metre and the smallest size must be above 0")
+            raise ValueError("Pixels per meter and the smallest size must be above 0")
         if opts["swim_frames"] < 2 or opts["turn_frames"] < 2 or opts["fps"] <= 0 or opts["smoothness"] <= 0:
             raise ValueError("Need at least 2 frames per animation, and fps and smoothness above 0")
         return opts
@@ -972,6 +1061,8 @@ class FishStudio:
             if self.playing.get():
                 self._frame_i = (self._frame_i + 1) % len(self._frames)
                 self.view.itemconfigure("fish", image=self._frames[self._frame_i])
+                # Tk redraws when idle, and a moving mouse keeps it busy: draw now so the fish doesn't stall.
+                self.view.update_idletasks()
         self.root.after(delay, self._tick)
 
     # ------------------------------------------------------------------ export
