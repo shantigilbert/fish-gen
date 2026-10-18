@@ -1,4 +1,4 @@
-"""Random fish "DNA": every shape, fin and colour decision, derived from a seed."""
+"""Random fish "DNA": every shape, fin and color decision, derived from a seed."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ SPECIAL_TAILS = ("heterocercal", "flukes", "none")
 ALL_TAIL_SHAPES = TAIL_SHAPES + SPECIAL_TAILS
 FIN_SHAPES = ("triangle", "rounded", "sail", "long")
 # Fin shapes random fish never pick: "falcate" is a dolphin/shark sickle (trailing edge hollowed
-# towards the tail), "pennant" an angelfish streamer whose tip trails far behind.
+# toward the tail), "pennant" an angelfish streamer whose tip trails far behind.
 SPECIAL_FINS = ("falcate", "pennant")
 ALL_FIN_SHAPES = FIN_SHAPES + SPECIAL_FINS
 PATTERNS = ("none", "stripes", "spots", "lateral", "saddle", "gradient", "bands", "tiger", "shimmer")
@@ -85,21 +85,21 @@ class ColorGenes:
     saturation: float
     value: float
     fin_hue_shift: float  # added to hue for fins
-    accent_hue_shift: float  # added to hue for the pattern colour
+    accent_hue_shift: float  # added to hue for the pattern color
     belly_lightness: float  # 0 = belly same as body, 1 = very pale belly
     pattern: str
     pattern_scale: float  # stripe count / spot density
     pattern_offset: float
-    # Optional exact colours ("#rrggbb") that replace the hue-derived fin / pattern colours.
+    # Optional exact colors ("#rrggbb") that replace the hue-derived fin / pattern colors.
     fin_color: str | None = None
     accent_color: str | None = None
-    fin_tips: float = 0.0  # 0 = off; else the outer fraction of each fin painted in the pattern colour
-    accent2_color: str | None = None  # second pattern colour (neon tetra red, shimmer, bands); derived if None
+    fin_tips: float = 0.0  # 0 = off; else the outer fraction of each fin painted in the pattern color
+    accent2_color: str | None = None  # second pattern color (neon tetra red, shimmer, bands); derived if None
     belly_level: float | None = None  # where the pale belly starts (-1 belly .. 1 back); None = from belly_lightness
     pattern_on_fins: bool = False  # stripes carry on across the dorsal, anal and tail fins (angelfish)
-    tail_body_color: bool = False  # tail fin painted in the body colours instead of the fin colour
-    tail_color: str | None = None  # tail fin colour when it differs from the other fins (blue tang)
-    fin_edge_color: str | None = None  # thin margin round the fins (a clownfish's black edges)
+    tail_body_color: bool = False  # tail fin painted in the body colors instead of the fin color
+    tail_color: str | None = None  # tail fin color when it differs from the other fins (blue tang)
+    fin_edge_color: str | None = None  # thin margin around the fins (a clownfish's black edges)
     accent_edge_color: str | None = None  # thin margin round pattern marks (black rims on clownfish bands)
     belly_pattern: bool = False  # ventral spots too (individual manta belly spots)
 
@@ -130,7 +130,7 @@ class FishGenome:
     # --- motion ---
     swim_amplitude: float = 0.35  # radians of tail swing
     wave_count: float = 0.8  # body waves along the length
-    # --- colour ---
+    # --- color ---
     colors: ColorGenes = field(default=None)  # type: ignore[assignment]
     # --- other animals (defaults leave an ordinary fish untouched) ---
     kind: str = "fish"  # one of KINDS
@@ -170,11 +170,11 @@ class FishGenome:
     fin_alpha: float = 0.8  # fin membrane opacity (1 = fleshy, opaque fins)
     tail_alpha: float | None = None  # tail fin opacity when it differs from fin_alpha
     billow: float = 0.0  # 0 = stiff fins .. 1 = long, cloth-like fins that fold and ripple (bettas)
-    iris_color: str | None = None  # "#rrggbb" ring round the pupil (None: picked from the kind)
+    iris_color: str | None = None  # "#rrggbb" ring around the pupil (None: picked from the kind)
     finlets: int = 0  # little yellow tuna finlets along the back and belly in front of the tail
     scars: float = 0.0  # pale scratches and nicks in the skin (old sharks and whales)
     knobs: float = 0.0  # tubercles on the head and flipper edges (humpbacks)
-    morph: str = ""  # named colour variety within a species, e.g. a koi's "Kohaku"
+    morph: str = ""  # named color variety within a species, e.g. a koi's "Kohaku"
 
     @classmethod
     def random(cls, seed: int, archetype: str | None = None) -> "FishGenome":
@@ -230,7 +230,7 @@ class FishGenome:
             pattern_scale=r.uniform(0.0, 1.0),
             pattern_offset=r.random(),
         )
-        # A second pattern colour, often a bold contrast (used by bands, shimmer and lateral lines).
+        # A second pattern color, often a bold contrast (used by bands, shimmer and lateral lines).
         a2 = (hue + r.choice([r.uniform(0.25, 0.4), r.uniform(0.6, 0.75), 0.5])) % 1.0
         colors.accent2_color = "#%02x%02x%02x" % tuple(round(c * 255) for c in colorsys.hsv_to_rgb(
             a2, r.uniform(0.6, 0.95), r.uniform(0.75, 1.0)))

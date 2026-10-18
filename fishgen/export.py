@@ -24,7 +24,7 @@ def _upscale(img: Image.Image, scale: int) -> Image.Image:
 def _parse_hex(color: str) -> tuple[int, int, int]:
     c = color.lstrip("#")
     if len(c) != 6:
-        raise ValueError(f"expected a #rrggbb colour, got {color!r}")
+        raise ValueError(f"expected a #rrggbb color, got {color!r}")
     return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
 
 
@@ -33,7 +33,7 @@ def save_gif(sprite: FishSprite, frames: list[np.ndarray], path: Path, fps: floa
     """Write RGBA frames as a GIF (transparent unless a background is given).
 
     Pixel-art frames already share one small palette and go in exactly. Smooth frames are
-    reduced to one adaptive 256-colour palette for the whole animation (no colour flicker
+    reduced to one adaptive 256-color palette for the whole animation (no color flicker
     between frames), and GIF's on/off transparency flattens their translucent fins: over the
     background if one is given, otherwise over a mid-water blue and then cut off.
     """
@@ -139,7 +139,7 @@ def export_sheet(sprite: FishSprite, out_dir: Path, stem: str, padding: int = 0,
         "style": sprite.style,
         "palette": sprite.renderer.palette.to_dict(),
     }
-    if sprite.palette is not None:  # pixel art: every colour the frames use
+    if sprite.palette is not None:  # pixel art: every color the frames use
         meta["colors"] = ["#%02x%02x%02x" % tuple(int(v) for v in c) for c in sprite.palette]
     animations = {}
     for name, anim in sprite.animations.items():

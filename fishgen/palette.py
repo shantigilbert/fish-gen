@@ -1,5 +1,5 @@
-"""Key colours derived from an animal's colour genes: the renderer's base, belly, fin and pattern colours,
-the designer's colour swatches, and the palette summary written into the JSON."""
+"""Key colors derived from an animal's color genes: the renderer's base, belly, fin and pattern colors,
+the designer's color swatches, and the palette summary written into the JSON."""
 
 from __future__ import annotations
 
@@ -34,7 +34,7 @@ def _clamp(x: float) -> float:
 
 
 def _shift_hue(h: float, target: float, amount: float) -> float:
-    """Move hue h towards target hue by `amount` (in hue units), the short way round."""
+    """Move hue h toward target hue by `amount` (in hue units), the short way round."""
     d = ((target - h + 0.5) % 1.0) - 0.5
     step = max(-amount, min(amount, d))
     return (h + step) % 1.0
@@ -49,7 +49,7 @@ def hex_rgb(color: str) -> RGB:
     """'#rrggbb' -> (r, g, b)."""
     c = color.strip().lstrip("#")
     if len(c) != 6:
-        raise ValueError(f"expected a #rrggbb colour, got {color!r}")
+        raise ValueError(f"expected a #rrggbb color, got {color!r}")
     return int(c[0:2], 16), int(c[2:4], 16), int(c[4:6], 16)
 
 
@@ -71,8 +71,8 @@ class Palette:
 
 def build_palette(g: ColorGenes) -> Palette:
     h, s, v = g.hue, g.saturation, g.value
-    # Classic pixel-art hue shifting: shadows drift towards blue/purple,
-    # highlights drift towards yellow.
+    # Classic pixel-art hue shifting: shadows drift toward blue/purple,
+    # highlights drift toward yellow.
     shadow = _rgb(_shift_hue(h, 0.7, 0.06), s + 0.1, v * 0.68)
     base = _rgb(h, s, v)
     highlight = _rgb(_shift_hue(h, 0.15, 0.05), s * 0.7, min(1.0, v * 1.18 + 0.08))

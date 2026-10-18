@@ -1,7 +1,7 @@
 """Animal kinds: decide what an animal is first, then draw every gene to suit it.
 
 ``random_genome("shark", seed)`` is always shark-shaped (shark tail, gill slits,
-stiff fins...) and only its proportions, colours and markings vary with the seed.
+stiff fins...) and only its proportions, colors and markings vary with the seed.
 Fish use ``FishGenome.random``; every other kind has its own generator here.
 
 Some kinds have variants (a shark is a requiem shark or a hammerhead, a ray is
@@ -98,7 +98,7 @@ def _shark(seed: int, r: random.Random, variant: str | None) -> FishGenome:
         accent = accent or "#121216"
     colors = _colors(hue, sat, val, 1.0, pattern, U(0.2, 0.9), U(0.0, 1.0), accent, _hex(hue, sat * 1.1, val * 0.88),
                      0.4 if tips else 0.0)
-    colors.tail_body_color = True  # shark fins are skin, the same colour as the body
+    colors.tail_body_color = True  # shark fins are skin, the same color as the body
     g = _base(
         seed, "shark", height=U(0.23, 0.3), thickness=U(0.68, 0.85), peak=U(0.36, 0.42),
         nose=1.0 if hammer else U(0.9, 1.3), taper=U(1.0, 1.25), peduncle=U(0.08, 0.14),
@@ -223,7 +223,7 @@ def _squid(seed: int, r: random.Random, variant: str | None) -> FishGenome:
         accent = _hex(hue, sat + 0.2, val * 0.55) if pattern != "none" else None
     else:
         # Cuttlefish: a broad mantle ringed by a rippling fin skirt, a fat crown of arms, and
-        # iridescent colour waves rolling over the skin.
+        # iridescent color waves rolling over the skin.
         shape = dict(height=U(0.36, 0.4), thickness=U(1.15, 1.25), nose=U(0.8, 0.9), peak=0.42, eye_pos=0.72,
                      length_cm=U(25, 45))
         wings = WingGenes(True, 0.03, U(0.65, 0.72), U(0.06, 0.07), 0.5, "round", 0.7, 2.0)
@@ -294,16 +294,16 @@ _GENERATORS = {"shark": _shark, "whale": _whale, "ray": _ray, "squid": _squid, "
 
 
 def _jit_hex(color: str | None, r: random.Random) -> str | None:
-    """Nudge a #rrggbb colour's hue, saturation and brightness a little."""
+    """Nudge a #rrggbb color's hue, saturation and brightness a little."""
     if not color:
         return color
     h, s_, v = colorsys.rgb_to_hsv(*(int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)))
     return _hex(h + r.uniform(-0.03, 0.03), s_ * r.uniform(0.8, 1.2), v * r.uniform(0.88, 1.12))
 
 
-def individualise(g: FishGenome, salt: str) -> FishGenome:
+def individualize(g: FishGenome, salt: str) -> FishGenome:
     """Seeded individual variation for a species preset: proportions, fin/wing/arm sizes and
-    colours shift within a natural range, so two animals of a species never look the same
+    colors shift within a natural range, so two animals of a species never look the same
     while keeping everything that makes them that species (their kind's parts, markings).
     ``g.wings``/``g.arms``/``g.spines`` only vary when the animal has them."""
     r = random.Random(f"individual:{salt}:{g.seed}")

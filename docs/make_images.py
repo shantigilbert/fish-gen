@@ -24,7 +24,7 @@ OPTS = dict(swim_frames=8, turn_frames=10, smoothness=1)
 
 
 def backdrop(w: int, h: int) -> Image.Image:
-    """The water: a vertical gradient, lighter towards the surface."""
+    """The water: a vertical gradient, lighter toward the surface."""
     t = np.linspace(0.0, 1.0, h)[:, None]
     rows = (TOP * (1 - t) + BOTTOM * t).round().astype(np.uint8)
     return Image.fromarray(np.repeat(rows[:, None, :], w, axis=1), "RGB").convert("RGBA")
@@ -41,7 +41,7 @@ def save_gif(frames: list[Image.Image], path: Path, ms: int = 100):
     print(path)
 
 
-# The colour variety each picture shows, where seed 1 would pick a rarer one.
+# The color variety each picture shows, where seed 1 would pick a rarer one.
 MORPHS = {"Clownfish": "Ocellaris", "Koi": "Kohaku"}
 
 
@@ -51,7 +51,7 @@ def sprite(name: str, w: int, h: int, seed: int = 1, **kw):
 
 
 def grid_gif(sprites, cols: int, cell: tuple[int, int], scale: int, frames_of, path: Path, count: int):
-    """An animated grid: each sprite's own frames (cycled) centred in its cell."""
+    """An animated grid: each sprite's own frames (cycled) centered in its cell."""
     cw, ch = cell
     rows = (len(sprites) + cols - 1) // cols
     seqs = [frames_of(s) for s in sprites]
@@ -121,7 +121,7 @@ def scale():
     width = 10 + sum(s.size[0] * z + gap for _, s in sprites)
     im = backdrop(width, 316)
     draw = ImageDraw.Draw(im)
-    draw.text((10, 8), "Drawn to scale with the default settings: 16 px per metre, sprites from 16 to 128 px "
+    draw.text((10, 8), "Drawn to scale with the default settings: 16 px per meter, sprites from 16 to 128 px "
                        "(shown at 3x)", font=FONT, fill=(225, 235, 245))
     x = 10
     last_label_end = -1

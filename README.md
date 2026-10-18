@@ -13,9 +13,9 @@
 
 </div>
 
-Every seed gives a different fish (body shape, fins, tail, colours and pattern) with four
+Every seed gives a different fish (body shape, fins, tail, colors and pattern) with four
 animations that hand off seamlessly into each other. Besides fish it makes sharks, whales
-and dolphins, rays, squid and octopus, and sea urchins. Each one is modelled and lit in 3D
+and dolphins, rays, squid and octopus, and sea urchins. Each one is modeled and lit in 3D
 like the real animal - sun through the water, soft shadows, wet sheen, silver flanks,
 translucent fins, real markings and eyes - and then turned into **pixel art**: any size from
 16x16 to 128x128 (or whatever you like), one small palette per sprite, crisp edges and a
@@ -29,7 +29,7 @@ fishgen sprite "neon tetra" 64      # -> out/neon_tetra_64px_<seed>/  (sheet + J
 
 - 🎲 **Infinite variety** - same seed, same fish; a new seed, a new fish
 - 🦈 **7 kinds, 47 species presets** - from neon tetras to whale sharks, mantas and octopus,
-  many in several colour varieties (Kohaku / Sanke / Showa / Ogon koi, black mantas, betta colours...)
+  many in several color varieties (Kohaku / Sanke / Showa / Ogon koi, black mantas, betta colors...)
 - 👾 **Pixel art, any size** - 16, 24, 32, 48, 64, 96, 128 px or a custom canvas; palette size and outline are up to you
 - 📏 **To scale when you want it** - every animal has its real length; `--to-scale` draws them to one scale
 - 🔄 **Seamless 3/4 turn-arounds** - the fish shows its face mid-turn, no sprite flipping
@@ -48,7 +48,7 @@ swim_right ──▶ turn_right_to_left ──▶ swim_left ──▶ turn_left_
    ↻ loop                                ↻ loop
 ```
 
-The turn is a 3/4 rotation: the fish swings its head towards the viewer, shows its face,
+The turn is a 3/4 rotation: the fish swings its head toward the viewer, shows its face,
 and comes out facing the other way, with its body curving behind its head.
 
 Pufferfish get two more, `puff_right` and `puff_left`: the slim little fish swells into a
@@ -57,16 +57,16 @@ spiky ball, holds it, and deflates back into its swim (both hand back to the mat
 **Pixel art from 3D.** Every frame is first rendered as a detailed, anti-aliased image of the
 3D animal, then made into pixel art: an edge-preserving blur irons out texture that would only
 become noise, one palette for all of the sprite's frames is picked by k-means in the
-perceptual OKLab colour space (10 colours at 16 px up to 24 at 128 px; `--colors N` to
+perceptual OKLab color space (10 colors at 16 px up to 24 at 128 px; `--colors N` to
 choose), edges are made hard, lone stray pixels are merged away, small eyes get a clear pupil
-pixel, and a selective outline - a dark shade of whatever colour it borders - goes round the
-silhouette (`--no-outline` to drop it). `--style smooth` keeps the full-colour renders instead.
+pixel, and a selective outline - a dark shade of whatever color it borders - goes around the
+silhouette (`--no-outline` to drop it). `--style smooth` keeps the full-color renders instead.
 
 **Sizes.** Every sprite is 64x64 unless you say otherwise: `--size 16` (or `32`, `96`, `128`,
 `48x32`...) fits the animal into that canvas. With `--to-scale`, animals are drawn **to scale**
 instead: each carries its real adult length
 (`length_cm`; rays are measured across the wings, urchins across the shell) at `--px-per-m`
-pixels to the metre - 16 by default, so a 4.5 m great white is about 72 px long. Lengths come
+pixels to the meter - 16 by default, so a 4.5 m great white is about 72 px long. Lengths come
 from a size database (`fishgen/sizes.py`) of every species' measured adult range, with its
 source: each individual is drawn from that range, so most are near the typical size and a few
 are runts or giants, and orca and sperm whale bulls are bigger than cows. Small fish are still drawn at least `--min-px` (16) long, and
@@ -83,10 +83,10 @@ you, just as in photos of a manta gliding by.
 
 **Scariness.** Every animal has a `scariness` from 0 to 1 (`--scariness`, or the slider in
 the GUI's *Mouth & scariness* section). Turn it up and the lower jaw swings open in 3D: the
-skin over the opening is cut away onto a modelled mouth (gums, palate and a throat that falls
+skin over the opening is cut away onto a modeled mouth (gums, palate and a throat that falls
 into shadow) with a row of triangular teeth set along each jaw. The brow comes down over the
 eye in a glower, and big animals pick up more scars. Great whites, tigers, makos and great barracudas are scary out of the box;
-filter feeders and nurse sharks are not. In pixel art the maw is drawn in a dark colour of its
+filter feeders and nurse sharks are not. In pixel art the maw is drawn in a dark color of its
 own with each tooth a crisp pixel of white, so it still reads at 32 px.
 
 **Sea urchins** are a flattened dome with its spines in staggered columns from the mouth to
@@ -116,14 +116,14 @@ That's it. The first run creates `.venv` and installs numpy + Pillow by itself.
 
 Pick a **kind** of animal first, then a **species** of that kind (or *Random* for a random
 animal of that kind), then tweak anything on the tabs - body shape, eye, fins, wings and arms,
-colours and pattern, skin (silver sheen, gloss, scales, scars), length, frame counts and a *Smoothness* multiplier (1x-4x), and on
+colors and pattern, skin (silver sheen, gloss, scales, scars), length, frame counts and a *Smoothness* multiplier (1x-4x), and on
 the *Sprite* tab pixel art or smooth, palette size, outline, and a fixed canvas or to scale.
-The sprite size (16 to 128 px, 64 by default) is picked with one click right under the species. Species with colour varieties get a *Variety* box. Only the controls that apply to the chosen
+The sprite size (16 to 128 px, 64 by default) is picked with one click right under the species. Species with color varieties get a *Variety* box. Only the controls that apply to the chosen
 kind are shown. The animal re-renders live on the right.
 
 The kind is always decided first and every gene is then drawn to suit it, so a random shark
 is always a shark (shark tail, gill slits, two dorsal fins, stiff side fins) and only its
-proportions, snout, colours and markings vary; a random ray is always a flat winged ray, and so on.
+proportions, snout, colors and markings vary; a random ray is always a flat winged ray, and so on.
 Presets work the same way: the species fixes what makes it that species (a Tiger shark's
 stripes, an Orca's markings) and each seed is a different individual of it, with its own
 build, fin, wing or arm sizes, shading and the odd scar.
@@ -138,7 +138,7 @@ build, fin, wing or arm sizes, shading and the odd scar.
 | Octopus | Octopus, Blue-ringed octopus, Dumbo octopus |
 | Sea urchin | Purple sea urchin, Long-spined urchin, Red pencil urchin, Green sea urchin |
 
-Colour varieties (picked by the seed, or with `--morph`): Goldfish (Orange, Red and white,
+Color varieties (picked by the seed, or with `--morph`): Goldfish (Orange, Red and white,
 Calico, Lemon), Clownfish (Ocellaris, Black), Angelfish (Silver, Marble, Black), Betta (Red,
 Royal blue, Black orchid, Koi, Pastel), Koi (Kohaku, Taisho Sanke, Showa, Ogon, Chagoi),
 Discus (Red turquoise, Blue diamond, Pigeon blood), Manta ray (Chevron, Black), Cuttlefish
@@ -167,7 +167,7 @@ fishgen sprite great-white 128x64 --seed 3      # any WxH, a particular individu
 fishgen generate --seed 42                      # a random fish, all formats into ./out/fish_64px_42/
 fishgen generate --species Clownfish --count 5  # five different clownfish
 fishgen generate --species "Tiger shark" --to-scale   # to scale: ~70px long
-fishgen generate --species Koi --morph Showa    # pick the colour variety
+fishgen generate --species Koi --morph Showa    # pick the color variety
 fishgen generate --species Pufferfish           # includes the puff-up animations
 fishgen sprite koi --scariness 1                # a koi with fangs and a glare
 fishgen sprite koi -x 1                         # choppier (and 3x quicker): 8 swim / 10 turn frames at 10 fps
@@ -175,7 +175,7 @@ fishgen generate --kind ray --count 4           # four random rays: ./out/ray_<s
 fishgen generate --kind whale --size 96         # fitted to a 96x96 sprite
 fishgen generate --count 20 --size 16 --out fish    # 20 fish, each a 16x16 sprite
 fishgen generate --seed 3 --size 64 --colors 8 --no-outline
-fishgen generate --species Orca --style smooth --to-scale --px-per-m 100 --max-px 1600  # full colour, 1px per cm
+fishgen generate --species Orca --style smooth --to-scale --px-per-m 100 --max-px 1600  # full color, 1px per cm
 fishgen generate --seed 7 --size 128x64 --formats sheet,godot
 fishgen generate --seed 7 --formats gif --scale 2 --bg "#1d3557"
 fishgen preview --fish 5 --to-scale             # live aquarium window, to scale
@@ -191,13 +191,13 @@ and writes the sprite sheet, JSON and GIFs (`--formats all` for the rest).
 | `--seed N` | random | same seed = same fish |
 | `--kind KIND` | fish | `fish`, `shark`, `whale`, `ray`, `squid`, `octopus` or `urchin`: a random animal of that kind |
 | `--species NAME` | random | preset (implies its kind; also works with `preview` and `gui`); case, spaces and hyphens don't matter, and a unique part is enough (`hammer`) |
-| `--morph NAME` | from the seed | colour variety of the `--species` |
+| `--morph NAME` | from the seed | color variety of the `--species` |
 | `--scariness X` | the species' own | 0 = as nature made it .. 1 = jaws agape, full of teeth, a glowering eye |
 | `--size N` or `WxH` | `64` | fit the animal into this canvas (16, 32, 64, 96, 128, 48x32...) |
 | `--to-scale` | | draw animals to scale with each other instead of a fixed canvas |
-| `--px-per-m PX` | `16` | to scale: pixels per metre of animal |
+| `--px-per-m PX` | `16` | to scale: pixels per meter of animal |
 | `--min-px` / `--max-px` | `16` / `128` | to scale: small animals are drawn at least this long; the biggest are shrunk to fit a sprite this big |
-| `--style` | `pixel` | `pixel` art or `smooth` anti-aliased full-colour renders |
+| `--style` | `pixel` | `pixel` art or `smooth` anti-aliased full-color renders |
 | `--colors N` | auto | pixel art: palette size (10 at 16 px up to 24 at 128 px) |
 | `--no-outline` | | pixel art: leave out the dark outline |
 | `--swim-frames` | `8` | frames per swim cycle |
@@ -231,7 +231,7 @@ out/fish_64px_42/
   frames/<anim>/       individual PNG frames
 ```
 
-All frames of one animal share the same canvas and the animal is always centred, so the
+All frames of one animal share the same canvas and the animal is always centered, so the
 sprite's pivot is the middle of the frame (`meta.pivot` in the JSON). With `--to-scale`
 canvas sizes differ between animals; either way `meta.length_cm` and `meta.px_per_m` say how
 big the animal is, so a game can still scale sprites to one another, and `meta.colors` lists
@@ -270,13 +270,13 @@ func _on_finished():  # turns and puffs don't loop
 
 1. **Genome** (`genome.py`, `kinds.py`) - the animal's kind comes first. For a fish, a seeded
    RNG picks an archetype (slender, torpedo, classic, deep, round) and then every proportion,
-   fin, tail shape, colour and pattern. Every other kind has its own generator that sets all of
+   fin, tail shape, color and pattern. Every other kind has its own generator that sets all of
    its genes within that kind's ranges (some kinds have variants, e.g. requiem shark or
    hammerhead, eagle ray or stingray). Species presets (`species.py`) belong to one kind, ask
    its generator for a body and override the genes that make the species (including its real
-   length and, for some, a colour variety); the seed varies the rest.
+   length and, for some, a color variety); the seed varies the rest.
 2. **Model** (`geometry.py`) - the body is a 3D tube lofted along a spine; fins are flat
-   meshes attached to it. A pose bends the spine (travelling swim wave + tail flex + a
+   meshes attached to it. A pose bends the spine (traveling swim wave + tail flex + a
    C-curve while turning) and rotates it around the vertical axis.
    Other animals reuse the same spine: flukes lie flat and whales bend it vertically, rays and
    squid add flapping wing sheets, cephalopod arms are tapering tubes hung off the end of the
@@ -285,9 +285,9 @@ func _on_finished():  # turns and puffs don't loop
    corner of its mouth; the opening is cut out of the skin and lined with a mouth cavity, and
    each tooth is a triangular blade posed rigidly with its jaw. Ray wings beat with the tip lagging the root and the body heaving.
    Mesh resolution follows the sprite size.
-3. **Rasterizer** (`raster.py`) - z-buffered triangles sampled at pixel centres. Frames are
+3. **Rasterizer** (`raster.py`) - z-buffered triangles sampled at pixel centers. Frames are
    rendered at up to 4x4 samples per pixel and averaged down.
-4. **Shading** (`render.py`) - full colour in linear light: albedo from the colour genes
+4. **Shading** (`render.py`) - full color in linear light: albedo from the color genes
    (countershading, pattern, scales, skin grain, scars, gill covers or slits, mouth and teeth,
    fin rays, suckers), lit by a sun with a soft shadow map, a hemisphere of water light,
    screen-space ambient occlusion, wet specular sheen, silvery flanks that mirror the surface

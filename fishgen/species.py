@@ -3,11 +3,11 @@
 A preset asks its kind's generator for a random animal (fish of a given body type,
 or a shark / ray / ... of a given variant) and then pins the genes that make the
 species itself. The seed still varies everything a preset leaves alone, so
-"Goldfish, seed 3" and "Goldfish, seed 4" are recognisably goldfish but not identical.
+"Goldfish, seed 3" and "Goldfish, seed 4" are recognizably goldfish but not identical.
 
 Every preset's real adult length (``length_cm``; disc width for rays, shell diameter for
 urchins) comes from the size database in sizes.py: each individual is drawn from its species'
-measured adult range, so animals drawn to scale come out the right size next to each other. Some species come in colour varieties (``morphs``): the seed picks one, e.g.
+measured adult range, so animals drawn to scale come out the right size next to each other. Some species come in color varieties (``morphs``): the seed picks one, e.g.
 a koi is a Kohaku, Sanke, Showa, Ogon or Chagoi.
 """
 
@@ -16,7 +16,7 @@ from __future__ import annotations
 import random
 
 from .genome import FinGenes, FishGenome
-from .kinds import individualise, random_genome
+from .kinds import individualize, random_genome
 from .sizes import SIZES
 
 RANDOM = "Random"
@@ -25,7 +25,7 @@ RANDOM = "Random"
 def C(hue, saturation, value, belly=1.0, pattern="none", scale=0.5, offset=0.0, accent=None, fin=None,
       fin_tips=0.0, accent2=None, belly_level=None, on_fins=False, tail_body=False, tail=None, fin_edge=None,
       accent_edge=None, belly_pattern=False) -> dict:
-    """A complete colour override, so a preset's colours never depend on the seed."""
+    """A complete color override, so a preset's colors never depend on the seed."""
     return dict(hue=hue, saturation=saturation, value=value, belly_lightness=belly, pattern=pattern,
                 pattern_scale=scale, pattern_offset=offset, accent_color=accent, fin_color=fin,
                 fin_tips=fin_tips, fin_hue_shift=0.0, accent_hue_shift=0.0, accent2_color=accent2,
@@ -99,7 +99,7 @@ FISH: dict[str, tuple[str, dict]] = {
                  accent="#d9c25a", tail_body=True),
     )),
     "Eel": ("slender", dict(
-        # European eel: one long, unbroken, slimy body; the dorsal and anal fins run on round the
+        # European eel: one long, unbroken, slimy body; the dorsal and anal fins run on around the
         # tip of the tail.
         height=0.1, peak=0.3, nose=0.6, taper=1.7, peduncle=0.05, tail_shape="none",
         scales=0.0, gloss=0.7, fin_alpha=0.75, iris_color="#c8b070",
@@ -191,7 +191,7 @@ FISH: dict[str, tuple[str, dict]] = {
                  accent2="#2f5e76", fin="#8fa2af"),
     )),
     "Piranha": ("deep", dict(
-        # Red-bellied piranha: sparkly silver-grey flanks, red throat and belly, a jaw of teeth.
+        # Red-bellied piranha: sparkly silver-gray flanks, red throat and belly, a jaw of teeth.
         height=0.55, nose=0.7, tail_shape="truncate", eye_size=0.22, scales=0.012,
         silver=0.5, fin_alpha=0.8, iris_color="#c83020", mouth=0.06, mouth_height=-0.35, teeth=True,
         colors=C(0.58, 0.12, 0.55, belly=0.0, pattern="red_belly", accent="#c83a28", fin="#3a3f4a"),
@@ -277,7 +277,7 @@ OTHERS: dict[str, tuple[str, str, dict]] = {
     )),
     "Great white shark": ("shark", "requiem", dict(
         # Stout torpedo with a conical snout, a big triangular dorsal set back over the
-        # pectorals' trailing edge, huge pectorals, a sharp grey-over-white line and a mouthful of teeth.
+        # pectorals' trailing edge, huge pectorals, a sharp gray-over-white line and a mouthful of teeth.
         height=0.31, nose=0.95, flat_head=0.25, peak=0.4, peduncle=0.09, tail_spread=1.8, tail_length=0.3,
         tail_shape="lunate",
         dorsal=dict(start=0.39, end=0.55, height=0.24, shape="triangle", sweep=0.55),
@@ -344,7 +344,7 @@ OTHERS: dict[str, tuple[str, str, dict]] = {
         colors=C(0.58, 0.12, 0.55, belly=0.8),
     )),
     "Common dolphin": ("whale", "dolphin", dict(
-        # The tan-and-grey hourglass on each flank under a dark cape.
+        # The tan-and-gray hourglass on each flank under a dark cape.
         beak=0.09, eye_pos=0.16, height=0.2, nose=0.55, gloss=0.7,
         dorsal=dict(present=True, shape="falcate", start=0.42, end=0.55, height=0.14, sweep=0.8),
         colors=C(0.62, 0.3, 0.2, belly_level=-0.4, pattern="dolphin_cape", scale=0.6, accent="#c8b07a",
@@ -370,7 +370,7 @@ OTHERS: dict[str, tuple[str, str, dict]] = {
     )),
     "Sperm whale": ("whale", "whale", dict(
         # A huge square head a third of the body long, a narrow underslung jaw, wrinkled
-        # dark-grey skin scarred by squid, a low hump instead of a dorsal fin, small paddle flippers.
+        # dark-gray skin scarred by squid, a low hump instead of a dorsal fin, small paddle flippers.
         height=0.25, nose=0.12, peak=0.3, flat_head=1.0, back_arch=0.55, taper=1.4, eye_pos=0.3,
         eye_height=-0.4, pectoral_size=0.1, mouth=0.22, mouth_height=-0.85, gloss=0.35,
         scars=1.0, tail_spread=1.5,
@@ -429,7 +429,7 @@ OTHERS: dict[str, tuple[str, str, dict]] = {
         colors=C(0.0, 0.7, 0.55, belly=0.3),
     )),
     "Cuttlefish": ("squid", "cuttlefish", dict(
-        # Iridescent: rose-violet skin with teal and gold colour waves rolling down it.
+        # Iridescent: rose-violet skin with teal and gold color waves rolling down it.
         colors=C(0.86, 0.45, 0.82, belly=0.5, pattern="shimmer", scale=0.4,
                  accent="#4ce6d2", accent2="#ffc35a"),
         morphs=[
@@ -496,7 +496,7 @@ def species_for(kind: str) -> tuple[str, ...]:
 
 
 def morphs_of(species: str) -> tuple[str, ...]:
-    """Names of a species' colour varieties (empty if it only comes in one)."""
+    """Names of a species' color varieties (empty if it only comes in one)."""
     return tuple(m[0] for m in SPECIES[species][2].get("morphs", ()))
 
 
@@ -552,7 +552,7 @@ def make_genome(species: str, seed: int, archetype: str | None = None, kind: str
 
     "Random" gives a random animal of ``kind``; ``archetype`` (fish body type) only
     applies to a random fish. Presets fix their own kind and body type. A species with
-    colour varieties picks one from the seed unless ``morph`` names it.
+    color varieties picks one from the seed unless ``morph`` names it.
     """
     if species not in SPECIES:
         raise ValueError(f"unknown species {species!r}; choose from {', '.join(SPECIES)}")
@@ -575,7 +575,7 @@ def make_genome(species: str, seed: int, archetype: str | None = None, kind: str
             raise ValueError(f"{species} comes as {', '.join(names)}, not {morph!r}")
         _apply(g, morphs[names.index(morph)][2])
         g.morph = morph
-    individualise(g, species)
+    individualize(g, species)
     g.length_cm = SIZES[species].draw(random.Random(f"size:{species}:{seed}"))
     if species in SPECIAL:
         SPECIAL[species](g, random.Random(f"special:{species}:{seed}"))

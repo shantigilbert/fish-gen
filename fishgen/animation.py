@@ -128,7 +128,7 @@ STYLES = ("pixel", "smooth")
 def px_per_unit(genome: FishGenome, px_per_m: float = DEFAULT_PX_PER_M, min_px: int = MIN_PX,
                 max_px: int = MAX_PX) -> float:
     """Pixels per body length that draw ``genome`` at its real size: ``px_per_m`` pixels to a
-    metre of ``genome.length_cm``, clamped so it measures ``min_px``..``max_px`` pixels."""
+    meter of ``genome.length_cm``, clamped so it measures ``min_px``..``max_px`` pixels."""
     extent = FishModel(genome, detail=24).real_extent()
     want = px_per_m * genome.length_cm / 100.0
     return float(np.clip(want, min_px, max_px)) / max(extent, 1e-6)
@@ -142,7 +142,7 @@ class FishSprite:
     renderer: FishRenderer
     animations: dict[str, Animation]
     style: str = "pixel"
-    palette: np.ndarray | None = None  # (n, 3) uint8: every colour the pixel-art frames use
+    palette: np.ndarray | None = None  # (n, 3) uint8: every color the pixel-art frames use
 
     @property
     def size(self) -> tuple[int, int]:
@@ -171,13 +171,13 @@ def generate(seed: int, width: int = DEFAULT_SIZE, height: int = DEFAULT_SIZE, s
     three times as fluid, swimming and turning at the same speed.
 
     With ``scale_by_size`` it is drawn at its real size instead, ``px_per_m`` pixels to the
-    metre, on a canvas just big enough for every frame, so animals put side by side are to
+    meter, on a canvas just big enough for every frame, so animals put side by side are to
     scale. Small animals are still drawn ``min_px`` long, and the biggest are shrunk to fit a
     ``max_px`` canvas.
 
     ``style`` "pixel" (the default) turns the renders into pixel art: hard edges, one palette
-    of ``colors`` colours (None = chosen for the size) shared by every frame, and an outline.
-    "smooth" keeps the anti-aliased full-colour renders.
+    of ``colors`` colors (None = chosen for the size) shared by every frame, and an outline.
+    "smooth" keeps the anti-aliased full-color renders.
     """
     if style not in STYLES:
         raise ValueError(f"style must be one of {STYLES}, got {style!r}")
@@ -187,7 +187,7 @@ def generate(seed: int, width: int = DEFAULT_SIZE, height: int = DEFAULT_SIZE, s
     anims = build_animations(swim_frames, turn_frames, fps, pitch + genome.camera_tilt, genome.turn_lag,
                              puff=genome.puff > 0)
     all_poses = [p for a in anims.values() for p in a.poses]
-    # Pixel art keeps a clear ring round the animal for its outline.
+    # Pixel art keeps a clear ring around the animal for its outline.
     margin = 2.0 if style == "pixel" and outline else 1.0
     if scale_by_size:
         renderer = FishRenderer(genome, fit_poses=all_poses, margin=margin, max_size=max_px,

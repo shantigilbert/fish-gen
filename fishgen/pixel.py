@@ -1,14 +1,14 @@
 """Turns the realistic renders into pixel art.
 
 The 3D renderer draws each frame with smooth lighting, anti-aliased edges and millions of
-colours. This module takes all the frames of one sprite and makes them pixel art:
+colors. This module takes all the frames of one sprite and makes them pixel art:
 
 * hard edges: every pixel is either fully opaque or fully transparent
-* one small palette shared by every frame (so colours don't flicker between frames),
+* one small palette shared by every frame (so colors don't flicker between frames),
   picked by k-means in the perceptual OKLab space, with a little extra contrast and
-  colour first so the shading reads at small sizes
-* lone pixels that only add noise are merged into the colour around them
-* a selective outline: a dark, hue-matched rim round the silhouette that takes its colour
+  color first so the shading reads at small sizes
+* lone pixels that only add noise are merged into the color around them
+* a selective outline: a dark, hue-matched rim around the silhouette that takes its color
   from the pixels it borders, as pixel artists draw it
 """
 
@@ -24,11 +24,11 @@ N8 = N4 + ((1, 1), (1, -1), (-1, 1), (-1, -1))
 
 
 def auto_colors(width: int, height: int) -> int:
-    """A palette size that suits the sprite: 10 colours at 16 px up to 24 at 128 px."""
+    """A palette size that suits the sprite: 10 colors at 16 px up to 24 at 128 px."""
     return int(np.clip(round(8 + max(width, height) / 8), 8, 32))
 
 
-# ---------------------------------------------------------------------------- colour space
+# ---------------------------------------------------------------------------- color space
 def _to_linear(c: np.ndarray) -> np.ndarray:
     c = c / 255.0
     return np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
@@ -72,15 +72,15 @@ def kmeans(points: np.ndarray, weights: np.ndarray, k: int, iters: int = 40, see
     """Weighted k-means with k-means++ seeding (deterministic for a given seed)."""
     k = min(k, len(points))
     rng = np.random.default_rng(seed)
-    centres = [points[np.argmax(weights)]]
-    d2 = ((points - centres[0]) ** 2).sum(1)
+    centers = [points[np.argmax(weights)]]
+    d2 = ((points - centers[0]) ** 2).sum(1)
     for _ in range(1, k):
         p = d2 * weights
         if p.sum() <= 0:
             break
-        centres.append(points[rng.choice(len(points), p=p / p.sum())])
-        d2 = np.minimum(d2, ((points - centres[-1]) ** 2).sum(1))
-    c = np.array(centres)
+        centers.append(points[rng.choice(len(points), p=p / p.sum())])
+        d2 = np.minimum(d2, ((points - centers[-1]) ** 2).sum(1))
+    c = np.array(centers)
     for _ in range(iters):
         lab = np.argmin(((points[:, None] - c[None]) ** 2).sum(-1), axis=1)
         new = c.copy()
@@ -94,8 +94,8 @@ def kmeans(points: np.ndarray, weights: np.ndarray, k: int, iters: int = 40, see
     return c
 
 
-def _unique_colours(lab_pixels: np.ndarray, quant: float = 0.006):
-    """Bucket near-identical colours so k-means runs on thousands of points, not millions."""
+def _unique_colors(lab_pixels: np.ndarray, quant: float = 0.006):
+    """Bucket near-identical colors so k-means runs on thousands of points, not millions."""
     key = np.round(lab_pixels / quant).astype(np.int64)
     uniq, inverse, counts = np.unique(key, axis=0, return_inverse=True, return_counts=True)
     sums = np.zeros((len(uniq), 3))
@@ -112,7 +112,7 @@ def pixelate(frames: list[np.ndarray], colors: int | None = None, outline: bool 
 
     ``colors`` is the palette size for the animal itself (None picks one for the sprite
     size); the outline adds up to three dark shades on top. ``punch`` scales the extra
-    contrast and colour given to the shading before it is quantised (0 = none). ``eyes`` lists
+    contrast and color given to the shading before it is quantized (0 = none). ``eyes`` lists
     each frame's visible eyes as (x, y, radius) so small eyes still get a clear pupil pixel;
     ``mouths`` gives each frame's maw and teeth coverage (h, w, 2) or None, so a gaping mouth
     comes out as a dark gap with crisp white teeth.
@@ -135,38 +135,38 @@ def pixelate(frames: list[np.ndarray], colors: int | None = None, outline: bool 
     with ThreadPoolExecutor(min(8, os.cpu_count() or 1)) as ex:  # numpy runs these outside the GIL
         lab_img = np.stack(list(ex.map(_smooth, lab_img, solid)))
     lab = _punch(lab_img[solid], punch)
-    pts, counts, inverse = _unique_colours(lab)
+    pts, counts, inverse = _unique_colors(lab)
     # sqrt weights keep small, distinct details (eyes, stripes) from being outvoted by big flat areas.
-    centres = kmeans(pts, np.sqrt(counts), colors)
-    mouth_cols = _mouth_colours(lab_img, mouths)
+    centers = kmeans(pts, np.sqrt(counts), colors)
+    mouth_cols = _mouth_colors(lab_img, mouths)
     extra = list(mouth_cols)
-    if eyes is not None and any(r < 2.0 for frame in eyes for _, _, r in frame) and centres[:, 0].min() > 0.2:
-        # A pale or bright animal has no dark enough colour for a pupil pixel: give it one, a
-        # very dark shade of its own darkest colour.
-        dark = centres[np.argmin(centres[:, 0])].copy()
+    if eyes is not None and any(r < 2.0 for frame in eyes for _, _, r in frame) and centers[:, 0].min() > 0.2:
+        # A pale or bright animal has no dark enough color for a pupil pixel: give it one, a
+        # very dark shade of its own darkest color.
+        dark = centers[np.argmin(centers[:, 0])].copy()
         extra.append(np.array([0.15, dark[1] * 0.4, dark[2] * 0.4]))
-    for c in extra:  # a small maw, a few teeth or a pupil would never win a colour of their own
-        dist = np.linalg.norm(centres - c, axis=1)
+    for c in extra:  # a small maw, a few teeth or a pupil would never win a color of their own
+        dist = np.linalg.norm(centers - c, axis=1)
         if dist.min() > 0.06:
-            if exact:  # then it takes the place of the nearest colour instead
-                centres[np.argmin(dist)] = c
+            if exact:  # then it takes the place of the nearest color instead
+                centers[np.argmin(dist)] = c
             else:
-                centres = np.vstack([centres, c])
-    centres = centres[np.argsort(centres[:, 0])]  # dark to light
-    idx_u = _nearest(pts, centres)
+                centers = np.vstack([centers, c])
+    centers = centers[np.argsort(centers[:, 0])]  # dark to light
+    idx_u = _nearest(pts, centers)
     index = np.full(solid.shape, -1, dtype=np.int32)
     index[solid] = idx_u[inverse]
-    index = np.stack([_despeckle(f, centres) for f in index])
+    index = np.stack([_despeckle(f, centers) for f in index])
     if mouths is not None:
-        maw_i, tooth_i = (int(_nearest(c[None], centres)[0]) for c in mouth_cols[:2]) if mouth_cols else (0, 0)
+        maw_i, tooth_i = (int(_nearest(c[None], centers)[0]) for c in mouth_cols[:2]) if mouth_cols else (0, 0)
         for k, (f, mouth) in enumerate(zip(index, mouths)):
             if mouth is not None:
                 _mark_mouth(f, mouth, maw_i, tooth_i, eyes[k] if eyes is not None else [])
     if eyes is not None:
         for k, (f, frame_eyes) in enumerate(zip(index, eyes)):
-            _mark_eyes(f, frame_eyes, centres, mouths[k] if mouths is not None else None)
+            _mark_eyes(f, frame_eyes, centers, mouths[k] if mouths is not None else None)
 
-    palette_lab = centres
+    palette_lab = centers
     if outline:
         index, palette_lab = _outline(index, palette_lab)
 
@@ -181,13 +181,13 @@ def pixelate(frames: list[np.ndarray], colors: int | None = None, outline: bool 
     return out, pal8
 
 
-def _nearest(pts: np.ndarray, centres: np.ndarray) -> np.ndarray:
-    return np.argmin(((pts[:, None] - centres[None]) ** 2).sum(-1), axis=1).astype(np.int32)
+def _nearest(pts: np.ndarray, centers: np.ndarray) -> np.ndarray:
+    return np.argmin(((pts[:, None] - centers[None]) ** 2).sum(-1), axis=1).astype(np.int32)
 
 
 def _see_through(lab: np.ndarray, alpha: np.ndarray) -> np.ndarray:
     """Pixel art has no half-transparent pixels, so thin translucent fins are drawn the way a
-    pixel artist would: paler and softer in colour than the body, by how see-through they are."""
+    pixel artist would: paler and softer in color than the body, by how see-through they are."""
     clear = (1.0 - np.clip(alpha, 0.0, 1.0))[..., None]
     out = lab.copy()
     out[..., :1] += (0.92 - out[..., :1]) * clear * 0.45
@@ -197,7 +197,7 @@ def _see_through(lab: np.ndarray, alpha: np.ndarray) -> np.ndarray:
 
 def _punch(lab: np.ndarray, amount: float) -> np.ndarray:
     """Spread the lightness range and lift chroma a little: shading that is subtle at full
-    resolution would otherwise collapse into one flat colour at 16-64 px."""
+    resolution would otherwise collapse into one flat color at 16-64 px."""
     if amount <= 0 or not len(lab):
         return lab
     out = lab.copy()
@@ -236,8 +236,8 @@ def _tidy_mask(m: np.ndarray) -> np.ndarray:
     return m
 
 
-def _despeckle(index: np.ndarray, centres: np.ndarray, max_de: float = 0.09) -> np.ndarray:
-    """Merge a pixel into its surroundings when all four neighbours share one other colour that
+def _despeckle(index: np.ndarray, centers: np.ndarray, max_de: float = 0.09) -> np.ndarray:
+    """Merge a pixel into its surroundings when all four neighbours share one other color that
     is close to it. Strong contrasts (an eye, a spot) are kept."""
     out = index.copy()
     nb = np.stack([_shift(index, dy, dx, fill=-1) for dy, dx in N4])
@@ -245,12 +245,12 @@ def _despeckle(index: np.ndarray, centres: np.ndarray, max_de: float = 0.09) -> 
     ys, xs = np.nonzero(same)
     if len(ys):
         a, b = index[ys, xs], nb[0][ys, xs]
-        close = np.linalg.norm(centres[a] - centres[b], axis=1) < max_de
+        close = np.linalg.norm(centers[a] - centers[b], axis=1) < max_de
         out[ys[close], xs[close]] = b[close]
     return out
 
 
-def _mark_eyes(index: np.ndarray, eyes, centres: np.ndarray, mouth: np.ndarray | None = None):
+def _mark_eyes(index: np.ndarray, eyes, centers: np.ndarray, mouth: np.ndarray | None = None):
     """An eye a few pixels across survives the downscale; a smaller one blurs into the skin.
     Give those a pupil pixel, the way a pixel artist would: dark on a pale head, and on a head
     so dark that a dark pixel wouldn't show, a light glint instead."""
@@ -264,35 +264,35 @@ def _mark_eyes(index: np.ndarray, eyes, centres: np.ndarray, mouth: np.ndarray |
             continue
         around = index[max(0, iy - 1):iy + 2, max(0, ix - 1):ix + 2]
         around = around[around >= 0]
-        skin = np.median(centres[around, 0])
-        if skin - centres[darkest, 0] > 0.15:
+        skin = np.median(centers[around, 0])
+        if skin - centers[darkest, 0] > 0.15:
             index[iy, ix] = darkest
             if mouth is not None:
-                _skin_ring(index, ix, iy, centres, mouth[..., 0] > 0.1)
+                _skin_ring(index, ix, iy, centers, mouth[..., 0] > 0.1)
         else:
-            index[iy, ix] = int(np.argmin(np.abs(centres[:, 0] - min(1.0, skin + 0.4))))
+            index[iy, ix] = int(np.argmin(np.abs(centers[:, 0] - min(1.0, skin + 0.4))))
 
 
-def _skin_ring(index: np.ndarray, ix: int, iy: int, centres: np.ndarray, mouth: np.ndarray):
+def _skin_ring(index: np.ndarray, ix: int, iy: int, centers: np.ndarray, mouth: np.ndarray):
     """Keep skin between a one-pixel pupil and a gaping mouth: dark mouth pixels right next to
-    it would swallow it into one dark blob, so they take the skin colour from nearby."""
+    it would swallow it into one dark blob, so they take the skin color from nearby."""
     h, w = index.shape
     win = index[max(0, iy - 2):iy + 3, max(0, ix - 2):ix + 3]
-    pupil = centres[index[iy, ix], 0]
+    pupil = centers[index[iy, ix], 0]
     light = win[(win >= 0)]
-    light = light[centres[light, 0] > pupil + 0.15]
+    light = light[centers[light, 0] > pupil + 0.15]
     if not len(light):
         return
     skin = np.bincount(light).argmax()
     for dy, dx in N8:
         y, x = iy + dy, ix + dx
         if 0 <= y < h and 0 <= x < w and index[y, x] >= 0 and mouth[y, x] and \
-                centres[index[y, x], 0] < pupil + 0.12:
+                centers[index[y, x], 0] < pupil + 0.12:
             index[y, x] = skin
 
 
-def _mouth_colours(lab: np.ndarray, mouths) -> list[np.ndarray]:
-    """The colours of a gaping maw (made dark enough to read as a hole) and of its teeth
+def _mouth_colors(lab: np.ndarray, mouths) -> list[np.ndarray]:
+    """The colors of a gaping maw (made dark enough to read as a hole) and of its teeth
     (bright enough to stand out), or [] when no frame shows a mouth."""
     if not mouths or all(m is None for m in mouths):
         return []
@@ -331,7 +331,7 @@ def _mark_mouth(index: np.ndarray, mouth: np.ndarray, maw_i: int, tooth_i: int, 
 
 def _outline(index: np.ndarray, palette: np.ndarray, shades: int = 3):
     """Selective outline: each transparent pixel touching the sprite becomes a dark version of
-    the colours it borders. The outline colours are reduced to a few shades."""
+    the colors it borders. The outline colors are reduced to a few shades."""
     frames = []
     cols = []
     for f in index:
@@ -351,9 +351,9 @@ def _outline(index: np.ndarray, palette: np.ndarray, shades: int = 3):
         return index, palette
     dark = allc.copy()
     dark[:, 0] = np.minimum(dark[:, 0] * 0.42, 0.3)  # much darker...
-    dark[:, 1:] *= 0.45  # ...and greyer, as dark colours are (and stay inside the RGB range)
-    dark[:, 2] -= 0.012  # with a nudge towards blue, the classic hue-shifted shadow
-    pts, counts, inverse = _unique_colours(dark)
+    dark[:, 1:] *= 0.45  # ...and grayer, as dark colors are (and stay inside the RGB range)
+    dark[:, 2] -= 0.012  # with a nudge toward blue, the classic hue-shifted shadow
+    pts, counts, inverse = _unique_colors(dark)
     oc = kmeans(pts, counts.astype(float), min(shades, len(pts)))
     oi = _nearest(pts, oc)[inverse] + len(palette)
     out = index.copy()

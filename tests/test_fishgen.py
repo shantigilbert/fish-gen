@@ -61,7 +61,7 @@ def test_frames_are_pixel_art():
         for f in anim.frames:
             assert set(np.unique(f[..., 3])) <= {0, 255}  # no half-transparent pixels
             assert {tuple(c) for c in f[opaque(f)][:, :3]} <= pal
-    # The pixels round the silhouette are the outline: darker than the animal inside it.
+    # The pixels around the silhouette are the outline: darker than the animal inside it.
     f = s.animations["swim_right"].frames[0]
     on = opaque(f)
     inner = on.copy()
@@ -87,21 +87,21 @@ def test_palette_size_and_outline_options():
     assert len(s.palette) == 6
     t = generate(5, 48, 48, scale_by_size=False, colors=6, swim_frames=2, turn_frames=2)
     assert 6 < len(t.palette) <= 9  # plus a few outline shades
-    # The outline goes round the outside, so the outlined sprite covers more pixels.
+    # The outline goes around the outside, so the outlined sprite covers more pixels.
     f0, f1 = s.animations["swim_right"].frames[0], t.animations["swim_right"].frames[0]
     assert opaque(f1).sum() > opaque(f0).sum()
 
 
-def test_smooth_style_is_full_colour_and_anti_aliased():
+def test_smooth_style_is_full_color_and_anti_aliased():
     s = generate(3, 96, 64, scale_by_size=False, style="smooth")
     assert s.palette is None
     f = s.animations["swim_right"].frames[0]
-    colours = {tuple(c) for c in f[opaque(f)][:, :3]}
-    assert len(colours) > 200  # shaded, textured, not a handful of palette slots
+    colors = {tuple(c) for c in f[opaque(f)][:, :3]}
+    assert len(colors) > 200  # shaded, textured, not a handful of palette slots
     edge = f[..., 3]
     assert ((edge > 0) & (edge < 255)).sum() > 20  # soft, supersampled silhouette
     with pytest.raises(ValueError):
-        generate(3, 32, 32, scale_by_size=False, style="watercolour")
+        generate(3, 32, 32, scale_by_size=False, style="watercolor")
 
 
 def test_native_code_matches_numpy(monkeypatch):
@@ -145,7 +145,7 @@ def test_turns_hand_off_smoothly():
 
     turn = anims["turn_right_to_left"].poses
     assert turn[0].yaw < math.pi / 4 and turn[-1].yaw > 3 * math.pi / 4
-    # Turning passes the fish's face towards the viewer (yaw through pi/2).
+    # Turning passes the fish's face toward the viewer (yaw through pi/2).
     assert any(abs(p.yaw - math.pi / 2) < 0.3 for p in turn)
 
 
@@ -236,7 +236,7 @@ def test_forced_archetype_and_dict_roundtrip():
     assert FishGenome.from_dict(json.loads(json.dumps(g.to_dict()))) == g
 
 
-def test_colour_overrides_reach_palette():  # the GUI's swatches and the JSON's key colours
+def test_color_overrides_reach_palette():  # the GUI's swatches and the JSON's key colors
     from fishgen.palette import ACCENT, FIN, build_palette
 
     g = FishGenome.random(4)
@@ -348,7 +348,7 @@ def test_scariness_varies_with_the_seed():
 
 def test_eyes_stay_visible_beside_a_gaping_mouth():
     """The open mouth must never swallow the eye: in every swim frame the pupil pixel is much
-    darker than the skin round it and isn't the maw's colour."""
+    darker than the skin around it and isn't the maw's color."""
     import numpy as np
 
     import fishgen.animation as anim
@@ -434,7 +434,7 @@ def test_cli_kind_option(tmp_path):
 
 
 def test_every_species_varies_with_the_seed():
-    """Two animals of one species are never the same: shape and colour both change."""
+    """Two animals of one species are never the same: shape and color both change."""
     from fishgen.species import SPECIES_NAMES, make_genome
 
     for name in SPECIES_NAMES:
@@ -445,7 +445,7 @@ def test_every_species_varies_with_the_seed():
 
 
 def test_animals_are_drawn_to_scale():
-    """At real scale an animal's drawn length follows its real length, ``px_per_m`` to the metre."""
+    """At real scale an animal's drawn length follows its real length, ``px_per_m`` to the meter."""
     from fishgen.animation import px_per_unit
     from fishgen.geometry import FishModel
     from fishgen.species import make_genome
@@ -516,7 +516,7 @@ def test_sheet_rows_wrap_to_a_max_width(sprite):
     assert all(x + w <= img.width and y + h <= img.height for x, y, _, _ in every)
 
 
-def test_species_come_in_colour_varieties():
+def test_species_come_in_color_varieties():
     from fishgen.species import make_genome, morphs_of
 
     assert {"Kohaku", "Showa", "Ogon"} <= set(morphs_of("Koi"))

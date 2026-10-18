@@ -20,7 +20,7 @@
 
 #define EMPTY_DEPTH (-1e9)
 
-/* Z-buffered triangle rasterizer sampling at pixel centres (see raster.py).
+/* Z-buffered triangle rasterizer sampling at pixel centers (see raster.py).
  * screen: (n,3) x, y (down), depth (larger = closer). Buffers come pre-cleared:
  * depth = EMPTY_DEPTH, tri_id = -1. For each covered pixel keeps the closest
  * fragment's part, depth, triangle and first two barycentrics. */

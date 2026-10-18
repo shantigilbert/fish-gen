@@ -1,4 +1,4 @@
-"""Tiny z-buffered triangle rasterizer that samples exactly at pixel centres.
+"""Tiny z-buffered triangle rasterizer that samples exactly at pixel centers.
 
 The renderer calls it at a supersampled resolution and averages blocks of samples
 down afterwards, which is what anti-aliases the silhouette and every marking.
@@ -35,7 +35,7 @@ def rasterize(
     v0, v1, v2 = screen[tris[:, 0]], screen[tris[:, 1]], screen[tris[:, 2]]
     area = (v1[:, 0] - v0[:, 0]) * (v2[:, 1] - v0[:, 1]) - (v1[:, 1] - v0[:, 1]) * (v2[:, 0] - v0[:, 0])
 
-    # Integer range of pixel centres (i + 0.5) inside each triangle's bounding box.
+    # Integer range of pixel centers (i + 0.5) inside each triangle's bounding box.
     lo = np.minimum(np.minimum(v0, v1), v2)
     hi = np.maximum(np.maximum(v0, v1), v2)
     x0 = np.clip(np.ceil(lo[:, 0] - 0.5), 0, width).astype(np.int64)

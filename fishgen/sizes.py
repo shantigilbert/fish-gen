@@ -1,7 +1,7 @@
 """Real adult sizes of every species preset, from published measurements.
 
 Each entry is a typical adult (``typical``) and the range most adults fall in (``low`` to
-``high``), all in centimetres. Records and freak giants are left out: an individual's size is
+``high``), all in centimeters. Records and freak giants are left out: an individual's size is
 drawn from a triangular distribution over that range, peaking at the typical size.
 
 What is measured depends on the animal, the way biologists measure it:

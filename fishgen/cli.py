@@ -63,7 +63,7 @@ def _add_render_args(p: argparse.ArgumentParser):
     p.add_argument("--species", default=None, type=parse_species, metavar="NAME",
                    help=f"preset (implies its kind; case and spaces don't matter): {', '.join(SPECIES_NAMES)}")
     p.add_argument("--morph", default=None, metavar="NAME",
-                   help="colour variety of the species, e.g. --species Koi --morph Showa (default: from the seed)")
+                   help="color variety of the species, e.g. --species Koi --morph Showa (default: from the seed)")
     p.add_argument("--scariness", type=float, default=None, metavar="0-1",
                    help="0 = as nature made it .. 1 = jaws agape and full of teeth, a glowering eye "
                         "(default: the species' own; great whites and barracudas are already scary)")
@@ -73,14 +73,14 @@ def _add_render_args(p: argparse.ArgumentParser):
     p.add_argument("--to-scale", action="store_true",
                    help="instead of a fixed canvas, draw animals to scale with each other (see --px-per-m)")
     p.add_argument("--px-per-m", type=float, default=DEFAULT_PX_PER_M, metavar="PX",
-                   help=f"to scale: pixels per metre of animal (default {DEFAULT_PX_PER_M:g})")
+                   help=f"to scale: pixels per meter of animal (default {DEFAULT_PX_PER_M:g})")
     p.add_argument("--min-px", type=int, default=MIN_PX,
                    help=f"to scale: the smallest animals are drawn this long (default {MIN_PX})")
     p.add_argument("--max-px", type=int, default=MAX_PX,
                    help=f"to scale: the biggest animals are shrunk to fit a sprite this big (default {MAX_PX})")
     p.add_argument("--style", default="pixel", choices=STYLES,
                    help="pixel: pixel art with a limited palette and an outline (default); "
-                        "smooth: anti-aliased full-colour renders")
+                        "smooth: anti-aliased full-color renders")
     p.add_argument("--colors", type=int, default=None, metavar="N",
                    help="pixel art: palette size (default: 10 at 16px up to 24 at 128px)")
     p.add_argument("--no-outline", dest="outline", action="store_false", help="pixel art: no dark outline")

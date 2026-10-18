@@ -1,9 +1,9 @@
-"""Turns posed 3D animals into realistic full-colour frames.
+"""Turns posed 3D animals into realistic full-color frames.
 
-Each frame is rasterised at a supersampled resolution and averaged down, so edges and
+Each frame is rasterized at a supersampled resolution and averaged down, so edges and
 markings are anti-aliased. Shading is done in linear light:
 
-* albedo from the colour genes: countershading, pattern, scales, skin noise, scars,
+* albedo from the color genes: countershading, pattern, scales, skin noise, scars,
   gill covers or slits, mouth, lateral line, fin rays, suckers...
 * a sun from above with a soft shadow map, a hemisphere of water light (bright
   above, dark below), screen-space ambient occlusion where parts crowd each other,
@@ -133,7 +133,7 @@ class FishRenderer:
                  fit_poses: Iterable[Pose] = (), px_per_unit: float | None = None,
                  supersample: int | None = None, margin: float = 1.0, max_size: int | None = None):
         self.genome = genome
-        self.margin = margin  # empty pixels kept round the animal (room for a pixel-art outline)
+        self.margin = margin  # empty pixels kept around the animal (room for a pixel-art outline)
         poses = list(fit_poses) or [Pose(phase=p / 8) for p in range(8)]
         if px_per_unit is None:
             self.width, self.height = int(width), int(height)
@@ -172,12 +172,12 @@ class FishRenderer:
         return ext_x, ext_y
 
     def _fit_scale(self, poses: list[Pose]) -> float:
-        """Largest scale at which every pose fits inside the canvas, keeping the animal centred."""
+        """Largest scale at which every pose fits inside the canvas, keeping the animal centered."""
         ext_x, ext_y = self._extents(self.model, poses)
         m = self.margin
         return max(1e-6, min((self.width / 2 - m) / ext_x, (self.height / 2 - m) / ext_y))
 
-    # ------------------------------------------------------------------ colours
+    # ------------------------------------------------------------------ colors
     def _materials(self):
         g = self.genome
         c = g.colors
@@ -191,7 +191,7 @@ class FishRenderer:
         self.c_fin_edge = _hex_lin(c.fin_edge_color, self.c_fin_dark * 0.5)
         self.c_accent_edge = _hex_lin(c.accent_edge_color, self.c_accent * 0.4)
         kind = g.kind
-        # Specular sharpness and how far light wraps round the body (soft, fleshy animals more).
+        # Specular sharpness and how far light wraps around the body (soft, fleshy animals more).
         self.shininess = {"fish": 60.0, "shark": 28.0, "whale": 45.0, "ray": 30.0, "squid": 70.0,
                           "octopus": 40.0, "urchin": 20.0}[kind]
         self.wrap = {"fish": 0.25, "shark": 0.15, "whale": 0.2, "ray": 0.2, "squid": 0.45, "octopus": 0.4,
@@ -284,7 +284,7 @@ class FishRenderer:
         u = np.cross([0.0, 0.0, 1.0], L)
         u /= np.linalg.norm(u) + 1e-12
         v = np.cross(L, u)
-        rot = np.stack([u, v, L])  # camera -> light space (z towards the sun)
+        rot = np.stack([u, v, L])  # camera -> light space (z toward the sun)
         lp = cam @ rot.T * s
         lo = lp[:, :2].min(axis=0) - 2
         hi = lp[:, :2].max(axis=0) + 2
@@ -313,7 +313,7 @@ class FishRenderer:
         return lookup
 
     def _ssao(self, depth, mask, s):
-        """Screen-space ambient occlusion: darken where nearer surfaces crowd round a pixel."""
+        """Screen-space ambient occlusion: darken where nearer surfaces crowd around a pixel."""
         H, W = depth.shape
         if native.lib is not None:
             occ = np.empty((H, W))
@@ -352,7 +352,7 @@ class FishRenderer:
             env = env * (0.6 + 0.4 * hemi)[:, None] * (1.0 - 0.5 * ao)[:, None] * 0.85
             tint = 0.75 + 0.25 * albedo / (albedo.max(axis=1, keepdims=True) + 1e-6)
             col = col + (env * tint - col) * silver[:, None]
-        # A cool rim of scattered water light round the silhouette.
+        # A cool rim of scattered water light around the silhouette.
         fres = (1.0 - np.clip(n[:, 2], 0.0, 1.0)) ** 4
         col = col + RIM * (fres * 0.22 * rim)[:, None] * (0.4 + 0.6 * hemi)[:, None]
         if back is not None:  # light coming through a thin membrane from behind
@@ -390,7 +390,7 @@ class FishRenderer:
         if inside.any():
             albedo[inside], gloss[inside] = self._mouth_albedo(at[inside], pm[inside])
         lobe = pm == LOBE
-        if lobe.any():  # cephalic fins: dark skin, paler on the inner face and towards the tip
+        if lobe.any():  # cephalic fins: dark skin, paler on the inner face and toward the tip
             col = _mix(self.c_base, self.c_base * 0.5 + self.c_belly * 0.5, smoothstep(0.3, 1.0, at[lobe, 4]) * 0.6)
             albedo[lobe] = col * (1.0 + 0.08 * fbm(at[lobe, 3] * 60, at[lobe, 6] * 4, 1.0, 2))[:, None]
         wrap = np.full(len(pm), self.wrap)
@@ -416,7 +416,7 @@ class FishRenderer:
 
         # Countershading: dark back, pale belly, with a soft, slightly irregular boundary.
         col = np.broadcast_to(self.c_base, (len(a), 3)).copy()
-        # Backs are a touch darker and flanks a touch lighter than the base colour.
+        # Backs are a touch darker and flanks a touch lighter than the base color.
         col *= (1.0 + 0.18 * (0.15 - np.clip(v, -1, 1)))[:, None]
         if c.belly_lightness > 0.2:
             level = c.belly_level if c.belly_level is not None else -0.05 - 0.2 * (1 - c.belly_lightness)
@@ -588,7 +588,7 @@ class FishRenderer:
 
     def _urchin_shell(self, col, a, v, w):
         """The shell between the spines: five paler bands of tube-feet running up from the mouth
-        to the crown, and the crown itself, a dark ring round a pale knob at the top."""
+        to the crown, and the crown itself, a dark ring around a pale knob at the top."""
         x = 2.0 * a - 1.0
         r = np.sqrt(np.clip(1.0 - x * x, 0.0, 1.0))
         lat = np.arcsin(np.clip(r * v, -1, 1))
@@ -600,7 +600,7 @@ class FishRenderer:
         ring = smoothstep(1.22, 1.3, lat) * smoothstep(1.45, 1.38, lat)
         col = _mix(col, col * 0.35, ring)
         col = col * 0.5  # in the shade of the spines
-        knob = smoothstep(1.4, 1.46, lat)  # the anal cone: the spine colour, unless the species has its own
+        knob = smoothstep(1.4, 1.46, lat)  # the anal cone: the spine color, unless the species has its own
         cone = self.c_accent2 if self.genome.colors.accent2_color else self.c_fin * 0.8
         return _mix(col, cone, knob * 0.85)
 
@@ -628,7 +628,7 @@ class FishRenderer:
     # ------------------------------------------------------------------ patterns
     def _pattern(self, a, v, w, u1, u2, ang, pose, px_len, grow=0.0):
         """Pattern coverage (accent, accent2), each 0..1 per body pixel. ``grow`` widens the
-        marks by that many body lengths (for dark rims round them)."""
+        marks by that many body lengths (for dark rims around them)."""
         g = self.genome
         c = g.colors
         kind = c.pattern
@@ -674,7 +674,7 @@ class FishRenderer:
             cb = angn * 5.0 + 0.25
             ia, ib = np.floor(ca), np.floor(cb)
             jit = vnoise(ia * 3.1, ib * 2.3, seed)
-            fa = ca - ia - 0.55 - 0.08 * jit  # centred in its cell, so never clipped at the border
+            fa = ca - ia - 0.55 - 0.08 * jit  # centered in its cell, so never clipped at the border
             fb = cb - ib - 0.5 + 0.08 * jit
             rad = 0.03 + 0.015 * _hash(ia, ib, seed)
             spot = smoothstep(rad, rad * 0.7, fa * fa + (fb * 1.1) ** 2) * (_hash(ia + 2, ib, seed) > 0.12)
@@ -725,7 +725,7 @@ class FishRenderer:
             start = 0.45 + 0.2 * c.pattern_offset
             return smoothstep(start, start + 0.25, a), z
         if kind in ("koi", "calico"):
-            # Big irregular patches of colour (and smaller black ones), different on every fish.
+            # Big irregular patches of color (and smaller black ones), different on every fish.
             n1 = fbm(u1 * 7.0 + c.pattern_offset * 10, u2 * 7.0, seed, 4)
             thr = 0.35 - 0.6 * c.pattern_scale
             red = smoothstep(thr - 0.04, thr + 0.04, n1) * (v > -0.35 + 0.1 * n1)
@@ -759,12 +759,12 @@ class FishRenderer:
             return np.maximum(band1, loop), z
         if kind == "dolphin_cape":
             # Common dolphin: dark cape over the back dipping into a V under the dorsal fin, a tan
-            # hourglass patch in front and a grey one behind.
+            # hourglass patch in front and a gray one behind.
             cape_edge = 0.35 - 0.45 * np.exp(-((a - 0.48) / 0.08) ** 2)
             under = smoothstep(cape_edge + 0.04, cape_edge - 0.04, v) * (v > -0.35)
             tan = under * band(a, 0.12, 0.5)
-            grey = under * band(a, 0.5, 0.86)
-            return tan, grey
+            gray = under * band(a, 0.5, 0.86)
+            return tan, gray
         if kind == "barracuda":
             count = 16 + int(c.pattern_scale * 6)
             bars = band(np.mod(a * count - 0.4 * v, 1.0), 0.0, 0.35) * (v > 0.15) * band(a, 0.2, 0.9)
@@ -820,9 +820,9 @@ class FishRenderer:
         elif c.pattern in ("shimmer", "tiger", "blotches"):
             n1 = fbm(x * 18.0, y * 18.0, seed, 3)
             col = _mix(col, self.c_accent, smoothstep(0.15, 0.4, n1) * 0.6)
-        # Wing margins darken a touch towards the edge.
+        # Wing margins darken a touch toward the edge.
         col *= (1.0 - 0.15 * smoothstep(0.8, 1.0, r))[:, None]
-        # Undersides are pale (rays, the hammerhead's head), edged with grey.
+        # Undersides are pale (rays, the hammerhead's head), edged with gray.
         under = ~top
         if c.belly_lightness > 0.25 and g.kind in ("ray", "shark"):
             ucol = np.broadcast_to(self.c_belly, (len(a), 3)).copy()
@@ -854,7 +854,7 @@ class FishRenderer:
             col = np.broadcast_to(self.c_base, (k, 3)).copy()
             if not c.tail_body_color and c.fin_color:
                 col = np.broadcast_to(self.c_fin, (k, 3)).copy()
-            # Paired fins show the pale belly colour on their underside.
+            # Paired fins show the pale belly color on their underside.
             paired = np.isin(pm, PAIRED)
             world_up = n @ self._up
             if c.belly_lightness > 0.25:
@@ -862,10 +862,10 @@ class FishRenderer:
                 col = np.where(under[:, None], _mix(self.c_belly, col, 0.3), col)
             if c.fin_color and not c.tail_body_color:
                 pass
-            elif c.fin_color:  # sharks keep the fin colour as a slightly different tone of skin
+            elif c.fin_color:  # sharks keep the fin color as a slightly different tone of skin
                 col = _mix(col, self.c_fin, 0.5 * (pm != CAUDAL))
             col *= (1.0 + 0.06 * fbm(fa * 40, r * 6, seed, 3))[:, None]
-            # Skin fins darken towards their tips and trailing edges.
+            # Skin fins darken toward their tips and trailing edges.
             col *= (1.0 - 0.22 * smoothstep(0.55, 1.0, r) - 0.1 * smoothstep(0.6, 1.0, m))[:, None]
             alpha = np.ones(k)
         else:
@@ -933,7 +933,7 @@ class FishRenderer:
         dl = d3 @ self._sun
         cyl = np.sqrt(np.clip(1 - dl ** 2, 0, 1))
         toward = np.clip(d3[:, 2], -1, 1)
-        # Where on the ball the spine stands: up towards the sun and lit, or underneath in shadow.
+        # Where on the ball the spine stands: up toward the sun and lit, or underneath in shadow.
         ball = 0.5 + 0.5 * (d3 @ self._sun)
         span = np.abs(p1[:, :2] - p0[:, :2]).max(axis=1)
         steps = int(min(400, max(4, span.max() * 1.2)))
@@ -984,7 +984,7 @@ class FishRenderer:
         g = self.genome
         base_col = _lin(self.palette.colors[P.FIN])
         tt = t[t_]
-        # One colour from root to tip (a little lighter towards the tip, never washed out), dark
+        # One color from root to tip (a little lighter toward the tip, never washed out), dark
         # down among the roots where the spines shade each other.
         col = base_col[None, :] * (0.8 + 0.4 * tt)[:, None]
         root = 0.2 + 0.8 * smoothstep(0.0, 0.6, tt)
@@ -1039,7 +1039,7 @@ class FishRenderer:
             rho = np.hypot(lx, ly) / r
             on = alpha[y0:y1, x0:x1] > 0
             region = rgb[y0:y1, x0:x1]
-            # Socket: a soft dark ring round the eye.
+            # Socket: a soft dark ring around the eye.
             sock = smoothstep(1.35, 1.0, rho) * smoothstep(0.85, 1.0, rho) * on
             region *= (1.0 - 0.35 * sock * (0.6 + 0.4 * smoothstep(0.5, -1.0, dy / r)))[..., None]
             inside = (rho < 1.0) & on
@@ -1047,8 +1047,8 @@ class FishRenderer:
                 continue
             fwd = math.cos(pose.yaw)
             nx, ny = lx / r, ly / r  # -1..1 across the eye, y down
-            # Iris: darker towards the rim, upper part shadowed by the brow.
-            # Iris: a dark limbal ring, a brighter collar round the pupil, fine radial fibres.
+            # Iris: darker toward the rim, upper part shadowed by the brow.
+            # Iris: a dark limbal ring, a brighter collar around the pupil, fine radial fibers.
             iris = self.c_iris * (0.35 + 0.65 * smoothstep(1.0, 0.7, rho))[..., None]
             iris = iris * (1.0 + 0.35 * smoothstep(0.75, 0.55, rho) * smoothstep(0.45, 0.6, rho))[..., None]
             fib = vnoise(np.arctan2(ny, nx) * 9.0, rho * 3.0, g.seed % 97)
@@ -1069,7 +1069,7 @@ class FishRenderer:
             else:
                 pup = smoothstep(0.58, 0.5, np.hypot(pxo, ny))
             col = _mix(col, np.array([0.004, 0.006, 0.01]), pup)
-            # Wet cornea: a catch-light up towards the sun, and a faint reflection of the water.
+            # Wet cornea: a catch-light up toward the sun, and a faint reflection of the water.
             hl = smoothstep(0.17, 0.07, np.hypot(nx + 0.3, ny + 0.36))
             hl2 = smoothstep(0.1, 0.04, np.hypot(nx - 0.32, ny - 0.38)) * 0.3
             col = col + np.array([1.2, 1.2, 1.15]) * (hl + hl2)[..., None]
@@ -1077,7 +1077,7 @@ class FishRenderer:
             col = col + ENV_TOP * 0.06 * smoothstep(0.2, -0.9, ny)[..., None] * sph[..., None]
             edge = smoothstep(1.0, 0.85, rho)
             if g.scariness > 0:
-                # A glowering brow: a lid slanting down towards the snout hides the top of the eye.
+                # A glowering brow: a lid slanting down toward the snout hides the top of the eye.
                 sc = g.scariness
                 front = nx * (1.0 if fwd >= 0 else -1.0) * min(1.0, abs(fwd) * 3)
                 lid = -1.0 + 0.6 * sc + 0.4 * sc * front  # never past the middle: the pupil shows
