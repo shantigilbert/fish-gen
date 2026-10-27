@@ -264,6 +264,237 @@ FISH: dict[str, tuple[str, dict]] = {
         colors=C(0.58, 0.08, 0.58, belly=0.6, pattern="blotches", scale=0.15, accent="#7e888f", accent2="#6a737c",
                  fin="#5f6970", tail_body=True),
     )),
+    # ------------------------------------------------------------------ game fish: freshwater
+    "Yellow perch": ("classic", dict(
+        # Yellow-green with 6-8 dark saddle bars, a spiny first dorsal and a soft second one,
+        # orange-red lower fins.
+        height=0.27, thickness=0.6, peak=0.38, nose=0.8, taper=1.0, peduncle=0.16, back_arch=0.58,
+        eye_size=0.26, eye_height=0.32, scales=0.03, fin_alpha=0.85, iris_color="#d8b850",
+        mouth=0.06, mouth_height=-0.1, tail_shape="forked", tail_length=0.2, tail_spread=1.15,
+        dorsal=dict(present=True, shape="triangle", start=0.27, end=0.5, height=0.11, sweep=0.4),
+        dorsal2=dict(present=True, shape="rounded", start=0.53, end=0.7, height=0.08, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.64, end=0.76, height=0.07),
+        pelvic=dict(present=True, start=0.34, end=0.42, height=0.07),
+        colors=C(0.14, 0.62, 0.75, belly=0.8, pattern="stripes", scale=0.75, offset=0.18, accent="#2e3a18",
+                 fin="#e86a2a", tail="#a8a858"),
+    )),
+    "Common carp": ("classic", dict(
+        # Heavy, humped bronze body of big scales, one long dorsal, barbel-sized downturned mouth.
+        height=0.31, thickness=0.75, peak=0.38, nose=0.55, taper=0.95, peduncle=0.22, back_arch=0.62,
+        eye_size=0.17, eye_height=0.3, eye_pos=0.12, scales=0.07, silver=0.05, gloss=0.5, fin_alpha=0.85,
+        iris_color="#c8a040", mouth=0.035, mouth_height=-0.25, tail_shape="forked", tail_length=0.22,
+        tail_spread=1.3,
+        dorsal=dict(present=True, shape="long", start=0.36, end=0.78, height=0.12, sweep=0.3),
+        anal=dict(present=True, shape="triangle", start=0.7, end=0.78, height=0.08),
+        pelvic=dict(present=True, start=0.42, end=0.5, height=0.07),
+        colors=C(0.1, 0.62, 0.62, belly=0.65, fin="#8a5a30", tail="#9a6234"),
+        morphs=[
+            ("Common", 4, {}),
+            ("Mirror", 1, dict(scales=0.015, gloss=0.7, colors=dict(pattern="blotches", pattern_scale=0.25,
+                                                                   accent_color="#d8b058",
+                                                                   accent2_color="#6a5428"))),
+        ],
+    )),
+    "Bluegill": ("deep", dict(
+        # Sunfish: a tall, flat oval, olive-blue with faint bars, a yellow-orange breast and a
+        # black gill flap behind the eye.
+        height=0.52, thickness=0.4, peak=0.42, nose=0.75, taper=1.0, peduncle=0.2, eye_pos=0.15,
+        eye_size=0.21, eye_height=0.3, scales=0.02, fin_alpha=0.8, iris_color="#3a2a20", mouth=0.03,
+        mouth_height=0.0, tail_shape="forked", tail_length=0.2, tail_spread=1.0, pectoral_size=0.2,
+        dorsal=dict(present=True, shape="long", start=0.3, end=0.88, height=0.14, sweep=0.4),
+        anal=dict(present=True, shape="rounded", start=0.6, end=0.88, height=0.12),
+        pelvic=dict(present=True, start=0.35, end=0.42, height=0.08),
+        colors=C(0.36, 0.42, 0.5, belly=0.0, pattern="red_belly", accent="#e8a028", fin="#5a6650"),
+    )),
+    "Silver shiner": ("slender", dict(
+        # A small, bright minnow: mirror-silver flanks under an olive back, a dark thread along
+        # the side and a neat forked tail.
+        height=0.2, thickness=0.6, peak=0.38, nose=0.8, taper=1.0, peduncle=0.14, eye_size=0.3,
+        eye_height=0.3, scales=0.02, silver=0.85, gloss=0.6, fin_alpha=0.55, iris_color="#d0d4d8",
+        tail_shape="forked", tail_length=0.22, tail_spread=1.4,
+        dorsal=dict(present=True, shape="triangle", start=0.42, end=0.52, height=0.09, sweep=0.4),
+        anal=dict(present=True, shape="triangle", start=0.62, end=0.72, height=0.06),
+        pelvic=dict(present=True, start=0.42, end=0.48, height=0.05),
+        colors=C(0.3, 0.3, 0.55, belly_level=0.1, pattern="lateral", scale=0.0, accent="#4a5a58",
+                 fin="#c8ccc4"),
+    )),
+    "Northern pike": ("slender", dict(
+        # Long ambush hunter: flat duck-bill snout, big toothy jaw, dorsal and anal fins set far
+        # back by the tail, green body covered in pale bean-shaped spots.
+        height=0.18, thickness=0.8, peak=0.5, nose=1.3, taper=1.2, peduncle=0.28, flat_head=0.6,
+        eye_pos=0.12, eye_size=0.22, eye_height=0.45, scales=0.01, fin_alpha=0.9, gloss=0.5,
+        iris_color="#d8c040", mouth=0.13, mouth_height=-0.2, teeth=True, scariness=0.3,
+        tail_shape="forked", tail_length=0.17, tail_spread=1.5,
+        dorsal=dict(present=True, shape="rounded", start=0.72, end=0.84, height=0.08, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.74, end=0.85, height=0.07),
+        pelvic=dict(present=True, start=0.5, end=0.55, height=0.05),
+        colors=C(0.25, 0.6, 0.42, belly=0.85, pattern="spots", scale=0.9, accent="#d8d890",
+                 fin="#7a6a30", on_fins=True),
+    )),
+    "Largemouth bass": ("classic", dict(
+        # Green with a dark ragged stripe down the flank, a jaw reaching past the eye, and a
+        # notched dorsal (spiny front, soft back).
+        height=0.29, thickness=0.65, peak=0.4, nose=0.6, taper=1.0, peduncle=0.2, back_arch=0.55,
+        eye_size=0.21, eye_height=0.32, scales=0.02, fin_alpha=0.85, iris_color="#c8682a",
+        mouth=0.13, mouth_height=-0.05, tail_shape="truncate", tail_length=0.2, tail_spread=1.2,
+        dorsal=dict(present=True, shape="triangle", start=0.3, end=0.5, height=0.11, sweep=0.4),
+        dorsal2=dict(present=True, shape="rounded", start=0.52, end=0.72, height=0.1, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.64, end=0.77, height=0.08),
+        pelvic=dict(present=True, start=0.36, end=0.43, height=0.07),
+        colors=C(0.25, 0.5, 0.52, belly=0.85, pattern="bass", scale=0.5, accent="#1e2e16", fin="#6a7448"),
+    )),
+    "Smallmouth bass": ("classic", dict(
+        # Bronze-brown with faint dark vertical bars and a red eye; smaller jaw than the largemouth.
+        height=0.28, thickness=0.65, peak=0.4, nose=0.65, taper=1.0, peduncle=0.2, back_arch=0.55,
+        eye_size=0.22, eye_height=0.32, scales=0.02, fin_alpha=0.85, iris_color="#c82a20",
+        mouth=0.09, mouth_height=-0.05, tail_shape="forked", tail_length=0.2, tail_spread=1.2,
+        dorsal=dict(present=True, shape="triangle", start=0.3, end=0.5, height=0.1, sweep=0.4),
+        dorsal2=dict(present=True, shape="rounded", start=0.51, end=0.72, height=0.1, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.64, end=0.77, height=0.08),
+        pelvic=dict(present=True, start=0.36, end=0.43, height=0.07),
+        colors=C(0.1, 0.55, 0.5, belly=0.7, pattern="stripes", scale=1.0, offset=0.1, accent="#3a2a18",
+                 fin="#7a5a38"),
+    )),
+    "Walleye": ("slender", dict(
+        # Olive-gold, faint dark saddles, a big glassy eye, two dorsals and a toothy jaw.
+        height=0.21, thickness=0.7, peak=0.38, nose=0.85, taper=1.05, peduncle=0.16, back_arch=0.56,
+        eye_size=0.3, eye_height=0.4, eye_pos=0.12, scales=0.02, fin_alpha=0.85, iris_color="#f0e8b0",
+        mouth=0.1, mouth_height=-0.1, teeth=True, scariness=0.1, tail_shape="forked", tail_length=0.2,
+        tail_spread=1.3,
+        dorsal=dict(present=True, shape="triangle", start=0.3, end=0.5, height=0.1, sweep=0.4),
+        dorsal2=dict(present=True, shape="rounded", start=0.55, end=0.72, height=0.08, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.66, end=0.77, height=0.07),
+        pelvic=dict(present=True, start=0.34, end=0.4, height=0.06),
+        colors=C(0.13, 0.6, 0.62, belly=0.85, pattern="tiger", scale=0.0, offset=0.1, accent="#3a3418",
+                 fin="#8a7a48"),
+    )),
+    "Black crappie": ("deep", dict(
+        # Silver-green, heavily mottled in black; big dorsal and anal fins of the same size.
+        height=0.45, thickness=0.4, peak=0.45, nose=0.85, taper=0.95, peduncle=0.18, back_arch=0.5,
+        eye_size=0.24, eye_height=0.32, scales=0.02, silver=0.3, fin_alpha=0.75, iris_color="#c8c0a0",
+        mouth=0.08, mouth_height=0.1, tail_shape="forked", tail_length=0.2, tail_spread=1.05,
+        dorsal=dict(present=True, shape="rounded", start=0.52, end=0.84, height=0.17, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.52, end=0.84, height=0.16),
+        pelvic=dict(present=True, start=0.34, end=0.4, height=0.07),
+        colors=C(0.3, 0.2, 0.75, belly=0.4, pattern="blotches", scale=0.55, accent="#1a1e18",
+                 accent2="#2e3428", fin="#8a8e80", on_fins=True),
+    )),
+    "Tilapia": ("deep", dict(
+        # Nile tilapia (mojarra): gray-silver with faint bars, one long spiny dorsal, a striped tail
+        # blushing red at the edges.
+        height=0.42, thickness=0.45, peak=0.4, nose=0.7, taper=1.0, peduncle=0.22, back_arch=0.55,
+        eye_size=0.21, eye_height=0.32, scales=0.03, silver=0.3, fin_alpha=0.8, iris_color="#c89850",
+        mouth=0.05, mouth_height=0.05, tail_shape="truncate", tail_length=0.2, tail_spread=1.05,
+        dorsal=dict(present=True, shape="long", start=0.25, end=0.88, height=0.15, sweep=0.5),
+        anal=dict(present=True, shape="rounded", start=0.66, end=0.86, height=0.11),
+        pelvic=dict(present=True, start=0.32, end=0.4, height=0.1),
+        colors=C(0.45, 0.12, 0.6, belly=0.6, pattern="stripes", scale=0.75, offset=0.1, accent="#4a5250",
+                 fin="#6a6e70", fin_edge="#b8463a", tail="#7a6a68"),
+    )),
+    # ------------------------------------------------------------------ game fish: saltwater
+    "Red snapper": ("classic", dict(
+        # Pacific red snapper (huachinango): rosy red over a silvery-pink belly, a pointed snout,
+        # one long spiny dorsal and a red eye.
+        height=0.32, thickness=0.55, peak=0.4, nose=0.95, taper=1.0, peduncle=0.17, back_arch=0.6,
+        eye_size=0.2, eye_height=0.38, scales=0.025, silver=0.35, gloss=0.5, fin_alpha=0.85,
+        iris_color="#d02018", mouth=0.08, mouth_height=-0.1, tail_shape="truncate", tail_length=0.2,
+        tail_spread=1.25,
+        dorsal=dict(present=True, shape="long", start=0.3, end=0.82, height=0.12, sweep=0.5),
+        anal=dict(present=True, shape="triangle", start=0.68, end=0.8, height=0.09, sweep=0.6),
+        pelvic=dict(present=True, start=0.36, end=0.43, height=0.08),
+        colors=C(0.995, 0.75, 0.82, belly=0.55, fin="#d84038"),
+    )),
+    "Pacific sardine": ("torpedo", dict(
+        # Small schooling fish: deep green-blue back, mirror-silver sides, a row of dark spots
+        # along the upper flank.
+        height=0.2, thickness=0.6, peak=0.4, nose=0.85, taper=1.05, peduncle=0.12, eye_size=0.26,
+        eye_height=0.3, scales=0.01, silver=0.9, gloss=0.65, fin_alpha=0.6, iris_color="#c8ccd0",
+        tail_shape="forked", tail_length=0.22, tail_spread=1.5,
+        dorsal=dict(present=True, shape="triangle", start=0.4, end=0.52, height=0.08, sweep=0.4),
+        anal=dict(present=True, shape="long", start=0.72, end=0.86, height=0.03),
+        pelvic=dict(present=True, start=0.48, end=0.52, height=0.04),
+        colors=C(0.55, 0.55, 0.4, belly_level=0.15, pattern="sardine", scale=0.5, accent="#141c24",
+                 fin="#9aa8b0"),
+    )),
+    "Sailfish": ("slender", dict(
+        # A spear of a bill, a huge cobalt sail of a dorsal fin, pale blue bars over a dark blue
+        # back, silver belly, crescent tail.
+        height=0.2, thickness=0.7, peak=0.34, nose=0.9, taper=1.15, peduncle=0.06, beak=0.22,
+        beak_width=0.12, eye_pos=0.25, eye_size=0.16, eye_height=0.3, scales=0.0, silver=0.6,
+        gloss=0.6, fin_alpha=0.9, iris_color="#d0d4d8", mouth=0.0, tail_shape="lunate", tail_length=0.24,
+        tail_spread=1.9,
+        dorsal=dict(present=True, shape="sail", start=0.28, end=0.74, height=0.32, sweep=0.35),
+        dorsal2=dict(present=True, shape="triangle", start=0.86, end=0.9, height=0.03),
+        anal=dict(present=True, shape="falcate", start=0.62, end=0.7, height=0.07, sweep=0.7),
+        pelvic=dict(present=True, shape="long", start=0.32, end=0.36, height=0.12),
+        colors=C(0.62, 0.75, 0.32, belly_level=-0.05, pattern="stripes", scale=1.0, offset=0.1,
+                 accent="#8ab8e8", fin="#24387a", tail_body=True),
+    )),
+    "Swordfish": ("torpedo", dict(
+        # Broadbill: a long flat sword, a tall stiff sickle dorsal, no scales, dark bronze-purple
+        # back fading to a pale belly, a huge crescent tail.
+        height=0.24, thickness=0.75, peak=0.38, nose=0.8, taper=1.1, peduncle=0.06, beak=0.27,
+        beak_width=0.1, eye_pos=0.3, eye_size=0.2, eye_height=0.25, scales=0.0, silver=0.3, gloss=0.55,
+        fin_alpha=0.95, iris_color="#4a6070", mouth=0.0, tail_shape="lunate", tail_length=0.26,
+        tail_spread=2.0,
+        dorsal=dict(present=True, shape="falcate", start=0.34, end=0.44, height=0.16, sweep=0.6),
+        dorsal2=dict(present=True, shape="triangle", start=0.88, end=0.91, height=0.025),
+        anal=dict(present=True, shape="falcate", start=0.8, end=0.85, height=0.05, sweep=0.6),
+        pelvic=dict(present=False),
+        colors=C(0.88, 0.3, 0.4, belly_level=-0.15, fin="#4a3a48", tail_body=True),
+    )),
+    "Mahi-mahi": ("torpedo", dict(
+        # Dorado: blunt square forehead, one dorsal from the head to the tail, electric
+        # green-gold sides with blue speckles, yellow belly, deeply forked tail.
+        height=0.26, thickness=0.5, peak=0.17, nose=0.25, taper=1.4, peduncle=0.08, back_arch=0.62,
+        flat_head=0.0, eye_pos=0.08, eye_size=0.16, eye_height=0.1, scales=0.0, silver=0.35, gloss=0.7,
+        fin_alpha=0.95, iris_color="#3a5a40", mouth=0.05, mouth_height=-0.2, tail_shape="forked",
+        tail_length=0.26, tail_spread=1.7,
+        dorsal=dict(present=True, shape="long", start=0.07, end=0.94, height=0.12, sweep=0.3),
+        anal=dict(present=True, shape="long", start=0.52, end=0.94, height=0.09, sweep=0.3),
+        pelvic=dict(present=True, start=0.2, end=0.26, height=0.07),
+        colors=C(0.3, 0.8, 0.72, belly=0.9, belly_level=-0.1, pattern="spots", scale=0.3, accent="#2a7ad8",
+                 fin="#2a5ab0", tail="#d8c020"),
+    )),
+    "Roosterfish": ("classic", dict(
+        # Pez gallo: a tall comb of separate dorsal spines (the "rooster comb"), silver-bronze body
+        # with two dark curved stripes, deep forked tail.
+        height=0.3, thickness=0.55, peak=0.36, nose=0.75, taper=1.1, peduncle=0.08, back_arch=0.6,
+        eye_size=0.19, eye_height=0.3, scales=0.0, silver=0.6, gloss=0.6, fin_alpha=1.0,
+        iris_color="#c8c0a0", mouth=0.08, mouth_height=-0.1, tail_shape="forked", tail_length=0.26,
+        tail_spread=1.6,
+        dorsal=dict(present=True, shape="comb", start=0.18, end=0.44, height=0.4, sweep=0.5),
+        dorsal2=dict(present=True, shape="long", start=0.48, end=0.86, height=0.07, sweep=0.4),
+        anal=dict(present=True, shape="long", start=0.6, end=0.86, height=0.06, sweep=0.4),
+        pelvic=dict(present=True, start=0.34, end=0.4, height=0.07),
+        colors=C(0.12, 0.25, 0.7, belly_level=-0.2, pattern="rooster", accent="#1e1a1a", fin="#8a8478",
+                 tail="#d8b030"),
+    )),
+    "Snook": ("slender", dict(
+        # Robalo: silver with a jet-black lateral line from gill to tail fork, a long sloping
+        # head with a protruding lower jaw, two dorsals and yellowish fins.
+        height=0.21, thickness=0.65, peak=0.4, nose=1.1, taper=1.05, peduncle=0.14, back_arch=0.6,
+        flat_head=0.25, eye_size=0.18, eye_height=0.42, eye_pos=0.11, scales=0.015, silver=0.45, gloss=0.6,
+        fin_alpha=0.85, iris_color="#d8d0a0", mouth=0.12, mouth_height=-0.15, tail_shape="forked",
+        tail_length=0.2, tail_spread=1.35,
+        dorsal=dict(present=True, shape="triangle", start=0.33, end=0.48, height=0.11, sweep=0.5),
+        dorsal2=dict(present=True, shape="rounded", start=0.53, end=0.7, height=0.08, sweep=0.5),
+        anal=dict(present=True, shape="triangle", start=0.66, end=0.74, height=0.08),
+        pelvic=dict(present=True, start=0.36, end=0.42, height=0.07),
+        colors=C(0.15, 0.2, 0.55, belly_level=0.0, pattern="snook", accent="#141414", fin="#c8b860"),
+    )),
+    "Grouper": ("classic", dict(
+        # Leopard grouper (cabrilla): heavy and big-mouthed, brown with dense dark spots, rounded
+        # fins and tail edged in pale.
+        height=0.32, thickness=0.75, peak=0.36, nose=0.7, taper=0.85, peduncle=0.28, back_arch=0.55,
+        eye_size=0.16, eye_height=0.45, eye_pos=0.13, scales=0.015, fin_alpha=0.95, iris_color="#c8a040",
+        mouth=0.14, mouth_height=-0.1, tail_shape="truncate", tail_length=0.2, tail_spread=1.1,
+        dorsal=dict(present=True, shape="long", start=0.3, end=0.86, height=0.11, sweep=0.4),
+        anal=dict(present=True, shape="rounded", start=0.65, end=0.82, height=0.1),
+        pelvic=dict(present=True, start=0.34, end=0.42, height=0.08),
+        colors=C(0.06, 0.45, 0.45, belly=0.45, pattern="spots", scale=0.9, accent="#2a1a12", fin="#5a3e2a",
+                 on_fins=True, fin_edge="#d8cca8"),
+    )),
 }
 
 

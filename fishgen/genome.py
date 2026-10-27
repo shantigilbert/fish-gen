@@ -13,13 +13,15 @@ SPECIAL_TAILS = ("heterocercal", "flukes", "none")
 ALL_TAIL_SHAPES = TAIL_SHAPES + SPECIAL_TAILS
 FIN_SHAPES = ("triangle", "rounded", "sail", "long")
 # Fin shapes random fish never pick: "falcate" is a dolphin/shark sickle (trailing edge hollowed
-# toward the tail), "pennant" an angelfish streamer whose tip trails far behind.
-SPECIAL_FINS = ("falcate", "pennant")
+# toward the tail), "pennant" an angelfish streamer whose tip trails far behind, "comb" a crest of
+# separate tall spines with almost no membrane between them (roosterfish).
+SPECIAL_FINS = ("falcate", "pennant", "comb")
 ALL_FIN_SHAPES = FIN_SHAPES + SPECIAL_FINS
 PATTERNS = ("none", "stripes", "spots", "lateral", "saddle", "gradient", "bands", "tiger", "shimmer")
 # Patterns random fish never pick.
 SPECIAL_PATTERNS = ("orca", "rings", "neon", "whale_shark", "mackerel", "koi", "calico", "discus", "chevron",
-                    "trout", "salmon", "blotches", "tang", "dolphin_cape", "barracuda", "humpback", "red_belly")
+                    "trout", "salmon", "blotches", "tang", "dolphin_cape", "barracuda", "humpback", "red_belly",
+                    "bass", "sardine", "rooster", "snook")
 ALL_PATTERNS = PATTERNS + SPECIAL_PATTERNS
 ARCHETYPES = ("slender", "torpedo", "classic", "deep", "round")
 # What sort of animal a genome is. Decided first; every other gene is drawn to suit it (see kinds.py).
@@ -136,6 +138,7 @@ class FishGenome:
     kind: str = "fish"  # one of KINDS
     profile: str = "fish"
     beak: float = 0.0  # dolphin rostrum length (0 = none)
+    beak_width: float = 0.3  # rostrum thickness relative to body height (0.3 dolphin, ~0.1 a billfish spear)
     eye_style: str = "fish"
     gill_slits: int = 1  # 1 = a single fish gill line, 5 = shark gill slits, 0 = none
     dorsal2: FinGenes = field(default_factory=lambda: FinGenes(False, 0.75, 0.82, 0.05, "triangle", 0.5))

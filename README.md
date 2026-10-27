@@ -7,7 +7,7 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Godot 4](https://img.shields.io/badge/exports-Godot%204-478CBF?logo=godotengine&logoColor=white)](#playing-it-in-a-game)
-![47 species](https://img.shields.io/badge/species-47-orange)
+![65 species](https://img.shields.io/badge/species-65-orange)
 
 <img src="docs/images/hero.gif" alt="Twelve generated animals swimming and turning around" width="840">
 
@@ -28,7 +28,7 @@ fishgen sprite "neon tetra" 64      # -> out/neon_tetra_64px_<seed>/  (sheet + J
 ```
 
 - 🎲 **Infinite variety** - same seed, same fish; a new seed, a new fish
-- 🦈 **7 kinds, 47 species presets** - from neon tetras to whale sharks, mantas and octopus,
+- 🦈 **7 kinds, 65 species presets** - from neon tetras to whale sharks, mantas and octopus,
   many in several color varieties (Kohaku / Sanke / Showa / Ogon koi, black mantas, betta colors...)
 - 👾 **Pixel art, any size** - 16, 24, 32, 48, 64, 96, 128 px or a custom canvas; palette size and outline are up to you
 - 📏 **To scale when you want it** - every animal has its real length; `--to-scale` draws them to one scale
@@ -102,7 +102,7 @@ rather than fuzz.
 
 **Every species preset**, seed 1, each fitted to a 48x32 sprite and shown at 3x (row by row: fish, sharks, whales & dolphins, rays, squid & cuttlefish, octopus, urchins):
 
-<img src="docs/images/species.png" alt="All 47 species presets" width="100%">
+<img src="docs/images/species.png" alt="All 65 species presets" width="100%">
 
 ## Quick start: the designer window
 
@@ -130,7 +130,7 @@ build, fin, wing or arm sizes, shading and the odd scar.
 
 | kind | species |
 |---|---|
-| Fish | Random (with a chosen body type), Goldfish, Clownfish, Angelfish, Tuna, Eel, Pufferfish, Betta, Neon tetra, Koi, Discus, Mackerel, Piranha, Yellow tang, Blue tang, Rainbow trout, Atlantic salmon, Great barracuda, Ocean sunfish |
+| Fish | Random (with a chosen body type), Goldfish, Clownfish, Angelfish, Tuna, Eel, Pufferfish, Betta, Neon tetra, Koi, Discus, Mackerel, Piranha, Yellow tang, Blue tang, Rainbow trout, Atlantic salmon, Great barracuda, Ocean sunfish, Yellow perch, Common carp, Bluegill, Silver shiner, Northern pike, Largemouth bass, Smallmouth bass, Walleye, Black crappie, Tilapia, Red snapper, Pacific sardine, Sailfish, Swordfish, Mahi-mahi, Roosterfish, Snook, Grouper |
 | Shark | Tiger shark, Great white shark, Hammerhead shark, Whale shark, Mako shark, Blacktip reef shark, Blue shark, Nurse shark |
 | Whale & dolphin | Orca, Bottlenose dolphin, Common dolphin, Beluga, Humpback whale, Sperm whale |
 | Ray | Cownose ray, Manta ray, Spotted eagle ray, Stingray, Bluespotted stingray |

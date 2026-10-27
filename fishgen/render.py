@@ -717,6 +717,34 @@ class FishRenderer:
             # The saddle patch is streaky, not solid.
             saddle *= 0.65 + 0.35 * fbm(a * 60, v * 8, seed)
             return np.maximum(patch, white), saddle
+        if kind == "bass":
+            # Largemouth bass: a dark, ragged band of blotches from the gill to the tail.
+            n = fbm(a * 14.0, v * 4.0, seed, 3)
+            lo = -0.18 - 0.12 * c.pattern_scale + 0.12 * n
+            hi = 0.12 + 0.1 * c.pattern_scale + 0.12 * fbm(a * 11.0 + 3.0, v, seed + 7, 2)
+            ragged = band(v, lo, hi) * (0.75 + 0.25 * smoothstep(-0.2, 0.3, n))
+            return body * ragged * (a > eye + 0.06) * (a < 0.97), z
+        if kind == "sardine":
+            # Pacific sardine: one row of round dark spots along the upper flank (a second, fainter row
+            # behind it on some fish).
+            count = 9 + int(c.pattern_scale * 6)
+            u = np.mod((a - eye - 0.12) * count, 1.0) - 0.5
+            spot = smoothstep(0.09, 0.05, (u / 0.5) ** 2 * 0.25 + ((v - 0.18) / 0.5) ** 2 * 0.9)
+            row = spot * (a > eye + 0.12) * (a < 0.82)
+            u2 = np.mod((a - eye - 0.2) * count, 1.0) - 0.5
+            spot2 = smoothstep(0.07, 0.04, (u2 / 0.5) ** 2 * 0.25 + ((v - 0.42) / 0.5) ** 2 * 0.9)
+            return np.maximum(row, 0.5 * spot2 * (a > eye + 0.2) * (a < 0.7)), z
+        if kind == "rooster":
+            # Roosterfish: two dark stripes curving down and forward from the back, plus a dark eye bar.
+            u = a + 0.32 * v + 0.12 * v * v
+            s1 = band(u, 0.4, 0.45) * (v > -0.45)
+            s2 = band(u, 0.66, 0.71) * (v > -0.3) * (a < 0.9)
+            bar = band(a - 0.06 * v, eye - 0.02, eye + 0.025) * (v > 0.0)
+            return np.maximum(np.maximum(s1, s2), bar), z
+        if kind == "snook":
+            # Snook: a thin jet-black lateral line arching from the gill cover to the tail fork.
+            arch = 0.12 * np.sin(np.clip((a - eye) / (1.0 - eye), 0, 1) * math.pi * 0.9)
+            return band(v, -0.1 + arch, 0.08 + arch) * (a > eye + 0.1) * (a < 0.995), z
         if kind == "lateral":
             return body * band(v, -0.1 - 0.2 * c.pattern_scale, 0.15), z
         if kind == "saddle":

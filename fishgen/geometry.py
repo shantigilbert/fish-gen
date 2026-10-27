@@ -215,7 +215,7 @@ class FishModel:
         u_f = np.clip((a - b) / (g.peak - b), 0, 1)
         f_front = (1.0 - (1.0 - u_f) ** 2) ** g.nose
         if b > 0:
-            f_front = np.maximum(f_front, 0.3 * np.sqrt(np.clip(a / (0.35 * b), 0.0, 1.0)))
+            f_front = np.maximum(f_front, g.beak_width * np.sqrt(np.clip(a / (0.35 * b), 0.0, 1.0)))
         u_b = np.clip((a - g.peak) / (1.0 - g.peak), 0, 1)
         f_back = g.peduncle + (1.0 - g.peduncle) * np.cos(u_b * math.pi / 2) ** g.taper
         return np.maximum(np.where(front, f_front, f_back), 0.015)
@@ -478,7 +478,8 @@ class FishModel:
         def median_fin(fg: FinGenes, part: int, sign: float):
             if not fg.present:
                 return
-            m = np.linspace(0.0, 1.0, self.fin_cols)
+            # A comb's separate spines need enough columns to stay apart.
+            m = np.linspace(0.0, 1.0, max(self.fin_cols, 72) if fg.shape == "comb" else self.fin_cols)
             prof = _fin_profile(fg.shape, m)
             ra = fg.start + (fg.end - fg.start) * m
             base = self.top(ra) if sign > 0 else self.bottom(ra)
@@ -1023,6 +1024,10 @@ def _fin_profile(shape: str, m: np.ndarray) -> np.ndarray:
         return np.where(m < 0.72, (m / 0.72) ** 0.75, ((1 - m) / 0.28) ** 2.2)
     if shape == "pennant":  # angelfish streamer: rises the whole way to a tip right at the back
         return np.where(m < 0.9, (m / 0.9) ** 0.8, ((1 - m) / 0.1) ** 1.5)
+    if shape == "comb":  # roosterfish crest: tall separate spines, the first ones longest
+        teeth = np.abs(np.cos(np.pi * 4.5 * np.clip(m, 0, 1))) ** 2
+        env = np.sin(np.pi * np.clip(m, 0, 1) ** 0.6) ** 0.5 * (1.2 - 0.7 * m)
+        return env * (0.3 + 0.7 * teeth)
     if shape == "sail":
         return np.sin(np.pi * np.clip(m, 0, 1) ** 0.55) ** 0.7 * (0.6 + 0.6 * m)
     # long: low, even fin that runs the whole length
